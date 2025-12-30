@@ -1,180 +1,472 @@
-import { motion, useInView } from 'framer-motion';
-import { useRef, useEffect } from 'react';
-import { Palette, Users, Rocket } from 'lucide-react';
-import { gsap } from 'gsap';
+"use client";
 
-const pillars = [
-  {
-    icon: Palette,
-    title: 'Learn Animation',
-    description: 'Master the art of motion through hands-on workshops and mentorship.',
-    gradient: 'from-primary to-primary/50',
+import { useRef, useEffect, useState } from "react";
+import { motion, useMotionValue, useSpring } from "framer-motion";
+import createGlobe from "cobe";
+import type { COBEOptions } from "cobe";
+import { Frame, Play, Pen, Layers, Film, Box, Video, PenTool, Wand2 } from "lucide-react";
+
+/* ---------------- Utility ---------------- */
+
+const cn = (...classes: (string | false | null | undefined)[]) =>
+  classes.filter(Boolean).join(" ");
+
+/* ---------------- Globe Config ---------------- */
+
+const MOVEMENT_DAMPING = 720;
+
+const BASE_GLOBE_CONFIG: Omit<
+  COBEOptions,
+  "width" | "height" | "onRender"
+> = {
+  devicePixelRatio: 2,
+  phi: 0,
+  theta: 0.3,
+  dark: 0,
+  diffuse: 0.4,
+  mapSamples: 16000,
+  mapBrightness: 1.2,
+  baseColor: [1, 1, 1],
+  markerColor: [251 / 255, 100 / 255, 21 / 255],
+  glowColor: [1, 1, 1],
+  markers: [
+    { location: [19.076, 72.8777], size: 0.1 },
+    { location: [40.7128, -74.006], size: 0.1 },
+    { location: [34.6937, 135.5022], size: 0.08 },
+  ],
+};
+
+/* ---------------- Orbiting Icons ---------------- */
+
+const orbitingIcons = [
+  { Icon: Frame, delay: 0, color: "text-cyan-400" },
+  { Icon: Play, delay: 0.25, color: "text-purple-400" },
+  { Icon: Pen, delay: 0.5, color: "text-pink-400" },
+  { Icon: Layers, delay: 0.75, color: "text-amber-400" },
+];
+
+const OrbitingIcon = ({ 
+  Icon, 
+  delay, 
+  color 
+}: { 
+  Icon: any; 
+  delay: number; 
+  color: string;
+}) => {
+  return (
+    <motion.div
+      className="absolute left-1/2 top-1/2"
+      style={{
+        x: "-50%",
+        y: "-50%",
+      }}
+      animate={{
+        rotate: 360,
+      }}
+      transition={{
+        duration: 20,
+        repeat: Infinity,
+        ease: "linear",
+        delay: delay * 20,
+      }}
+    >
+      <motion.div
+        className="absolute"
+        style={{
+          left: "300px",
+          top: "-20px",
+        }}
+        animate={{
+          opacity: [0, 1, 1, 0],
+          scale: [0.5, 1, 1, 0.5],
+        }}
+        transition={{
+          duration: 20,
+          repeat: Infinity,
+          ease: "easeInOut",
+          delay: delay * 20,
+          times: [0, 0.15, 0.85, 1],
+        }}
+      >
+        <div className="relative">
+          <motion.div
+            className={cn("absolute inset-0 blur-xl opacity-60", color)}
+            animate={{
+              opacity: [0.3, 0.8, 0.3],
+            }}
+            transition={{
+              duration: 3,
+              repeat: Infinity,
+              ease: "easeInOut",
+            }}
+          >
+            <Icon size={40} strokeWidth={1.5} />
+          </motion.div>
+          <Icon 
+            className={cn(color, "relative z-10 drop-shadow-2xl")} 
+            size={40} 
+            strokeWidth={1.5}
+          />
+        </div>
+      </motion.div>
+    </motion.div>
+  );
+};
+
+/* ---------------- Globe Component ---------------- */
+
+const Globe = ({ className }: { className?: string }) => {
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const pointerInteracting = useRef<{ x: number; y: number } | null>(null);
+
+  const rotationX = useMotionValue(0);
+  const rotationY = useMotionValue(0);
+
+  const rotationXSpring = useSpring(rotationX, {
+    damping: 30,
+    stiffness: 100,
+  });
+
+  const rotationYSpring = useSpring(rotationY, {
+    damping: 30,
+    stiffness: 100,
+  });
+
+  useEffect(() => {
+    if (!canvasRef.current) return;
+
+    let phi = 0;
+    let width = canvasRef.current.offsetWidth;
+
+    const onResize = () => {
+      if (canvasRef.current) {
+        width = canvasRef.current.offsetWidth;
+      }
+    };
+
+    window.addEventListener("resize", onResize);
+
+    const globe = createGlobe(canvasRef.current, {
+      ...BASE_GLOBE_CONFIG,
+      width: width * 2,
+      height: width * 2,
+      onRender: (state) => {
+        if (!pointerInteracting.current) phi += 0.005;
+
+        state.phi = phi + rotationXSpring.get();
+        state.theta = Math.max(
+          -1,
+          Math.min(1, 0.3 + rotationYSpring.get())
+        );
+
+        state.width = width * 2;
+        state.height = width * 2;
+      },
+    });
+
+    canvasRef.current.style.opacity = "1";
+
+    return () => {
+      globe.destroy();
+      window.removeEventListener("resize", onResize);
+    };
+  }, [rotationXSpring, rotationYSpring]);
+
+  return (
+    <div
+      className={cn(
+        "relative aspect-square w-[60vw] max-w-[600px]",
+        className
+      )}
+    >
+      {orbitingIcons.map(({ Icon, delay, color }, i) => (
+        <OrbitingIcon key={i} Icon={Icon} delay={delay} color={color} />
+      ))}
+      
+      <canvas
+        ref={canvasRef}
+        className="w-full h-full opacity-0 transition-opacity duration-500 cursor-grab relative z-10"
+        onPointerDown={(e) => {
+          pointerInteracting.current = {
+            x: e.clientX,
+            y: e.clientY,
+          };
+          canvasRef.current!.style.cursor = "grabbing";
+        }}
+        onPointerUp={() => {
+          pointerInteracting.current = null;
+          canvasRef.current!.style.cursor = "grab";
+        }}
+        onPointerOut={() => {
+          pointerInteracting.current = null;
+          canvasRef.current!.style.cursor = "grab";
+        }}
+        onMouseMove={(e) => {
+          if (!pointerInteracting.current) return;
+
+          const deltaX = e.clientX - pointerInteracting.current.x;
+          const deltaY = e.clientY - pointerInteracting.current.y;
+
+          rotationX.set(rotationX.get() + deltaX / MOVEMENT_DAMPING);
+          rotationY.set(rotationY.get() + deltaY / MOVEMENT_DAMPING);
+
+          pointerInteracting.current = {
+            x: e.clientX,
+            y: e.clientY,
+          };
+        }}
+      />
+    </div>
+  );
+};
+
+/* ---------------- Domain Nodes ---------------- */
+
+interface Domain {
+  icon: React.ElementType;
+  title: string;
+  description: string;
+  position: { x: number; y: number };
+}
+
+const domains: Domain[] = [
+  { 
+    icon: Film, 
+    title: "2D Animation", 
+    description: "Traditional and digital animation techniques",
+    position: { x: -32, y: -15 }
   },
-  {
-    icon: Users,
-    title: 'Creative Collaboration',
-    description: 'Work with passionate peers to bring ambitious projects to life.',
-    gradient: 'from-secondary to-secondary/50',
+  { 
+    icon: Box, 
+    title: "3D Animation", 
+    description: "Modeling, rigging, and character animation",
+    position: { x: 32, y: -15 }
   },
-  {
-    icon: Rocket,
-    title: 'Real-World Projects',
-    description: 'Build a portfolio with professional-grade animation work.',
-    gradient: 'from-accent to-accent/50',
+  { 
+    icon: Video, 
+    title: "Motion Graphics", 
+    description: "Dynamic text and visual effects",
+    position: { x: -35, y: 15 }
+  },
+  { 
+    icon: PenTool, 
+    title: "Character Design", 
+    description: "Creating memorable animated characters",
+    position: { x: 35, y: 15 }
+  },
+  { 
+    icon: Layers, 
+    title: "Compositing", 
+    description: "Combining visual elements seamlessly",
+    position: { x: -28, y: 38 }
+  },
+  { 
+    icon: Wand2, 
+    title: "VFX", 
+    description: "Visual effects and post-production",
+    position: { x: 28, y: 38 }
   },
 ];
 
-export const IdentitySection = () => {
-  const ref = useRef(null);
-  const isInView = useInView(ref, { once: true, margin: '-100px' });
-  const iconRefs = useRef<(HTMLDivElement | null)[]>([]);
-  const bgRef = useRef<HTMLDivElement>(null);
+interface DomainNodeProps {
+  domain: Domain;
+  index: number;
+  hoveredIndex: number | null;
+  setHoveredIndex: (index: number | null) => void;
+}
 
-  // GSAP continuous icon floating animation
-  useEffect(() => {
-    iconRefs.current.forEach((iconEl, index) => {
-      if (iconEl) {
-        gsap.to(iconEl, {
-          y: -6,
-          duration: 2 + index * 0.3,
-          ease: 'sine.inOut',
-          yoyo: true,
-          repeat: -1,
-        });
-      }
-    });
-  }, []);
-
-  // GSAP slow background gradient movement
-  useEffect(() => {
-    if (bgRef.current) {
-      gsap.to(bgRef.current, {
-        backgroundPosition: '100% 100%',
-        duration: 20,
-        ease: 'none',
-        repeat: -1,
-        yoyo: true,
-      });
-    }
-  }, []);
+const DomainNode: React.FC<DomainNodeProps> = ({ 
+  domain, 
+  index, 
+  hoveredIndex, 
+  setHoveredIndex 
+}) => {
+  const Icon = domain.icon;
+  const isHovered = hoveredIndex === index;
+  const isAnyHovered = hoveredIndex !== null;
 
   return (
-    <section ref={ref} className="py-32 relative overflow-hidden">
-      {/* Animated Background with slow gradient shift */}
-      <div 
-        ref={bgRef}
-        className="absolute inset-0"
-        style={{
-          background: 'linear-gradient(135deg, hsl(240 10% 4%) 0%, hsl(240 10% 8%) 25%, hsl(240 10% 6%) 50%, hsl(240 10% 4%) 100%)',
-          backgroundSize: '400% 400%',
-          backgroundPosition: '0% 0%',
-        }}
-      />
-      
-      {/* Subtle noise overlay */}
-      <div className="absolute inset-0 opacity-[0.02]" style={{
-        backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
-      }} />
-      
-      <div className="container mx-auto px-6 lg:px-8 relative z-10">
-        {/* Heading with shimmer effect on "PixelCraft" */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.8, ease: 'easeOut' }}
-          className="text-center mb-20"
+    <div
+      className="absolute"
+      style={{
+        left: '50%',
+        top: '50%',
+        transform: `translate(calc(-50% + ${domain.position.x}vw), calc(-50% + ${domain.position.y}vh))`,
+      }}
+      onMouseEnter={() => setHoveredIndex(index)}
+      onMouseLeave={() => setHoveredIndex(null)}
+    >
+      <div className="relative flex flex-col items-center">
+        <div 
+          className="relative w-20 h-20 rounded-full border flex items-center justify-center cursor-pointer transition-all duration-500"
+          style={{
+            borderColor: isHovered ? 'rgba(255, 255, 255, 0.4)' : 'rgba(255, 255, 255, 0.15)',
+            backgroundColor: isHovered ? 'rgba(255, 255, 255, 0.08)' : 'rgba(255, 255, 255, 0.03)',
+            backdropFilter: 'blur(10px)',
+            boxShadow: isHovered 
+              ? '0 0 30px rgba(255, 255, 255, 0.2), inset 0 0 20px rgba(255, 255, 255, 0.05)' 
+              : 'none',
+            transform: isHovered ? 'scale(1.1)' : 'scale(1)',
+            opacity: isAnyHovered && !isHovered ? 0.4 : 1,
+          }}
         >
-          <h2 className="font-display text-4xl md:text-5xl font-bold mb-6">
-            What is{' '}
-            <span className="relative inline-block">
-              <span className="text-gradient">PixelCraft</span>
-              {/* Shimmer overlay */}
-              <motion.span
-                className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent"
-                initial={{ x: '-100%' }}
-                animate={{ x: '200%' }}
-                transition={{
-                  duration: 3,
-                  repeat: Infinity,
-                  repeatDelay: 2,
-                  ease: 'easeInOut',
-                }}
-                style={{ 
-                  WebkitBackgroundClip: 'text',
-                  mixBlendMode: 'overlay',
-                }}
-              />
-            </span>
-            ?
-          </h2>
-          
-          {/* Description with delayed fade */}
-          <motion.p 
-            className="text-xl text-muted-foreground max-w-3xl mx-auto"
-            initial={{ opacity: 0, y: 20 }}
-            animate={isInView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.6, delay: 0.2, ease: 'easeOut' }}
-          >
-            PixelCraft is a creative space where students learn, collaborate, and build animations together.
-          </motion.p>
-        </motion.div>
-
-        {/* Staggered Feature Cards */}
-        <div className="grid md:grid-cols-3 gap-8">
-          {pillars.map((pillar, index) => (
-            <motion.div
-              key={pillar.title}
-              initial={{ opacity: 0, y: 40 }}
-              animate={isInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ 
-                duration: 0.6, 
-                delay: 0.4 + index * 0.15,
-                ease: 'easeOut'
+          {isHovered && (
+            <div 
+              className="absolute inset-0 rounded-full"
+              style={{
+                background: 'radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%)',
+                animation: 'pulse 2s ease-in-out infinite',
               }}
-              className="group relative"
-            >
-              {/* Hover glow effect */}
-              <motion.div 
-                className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"
-                style={{
-                  background: 'radial-gradient(circle at 50% 50%, hsl(25 100% 55% / 0.15) 0%, transparent 70%)',
-                  filter: 'blur(20px)',
-                }}
-              />
-              
-              <motion.div 
-                className="relative glass rounded-2xl p-8 h-full border border-border/50 transition-all duration-500"
-                whileHover={{ 
-                  y: -8, 
-                  boxShadow: '0 20px 40px -10px hsl(25 100% 55% / 0.2)',
-                  borderColor: 'hsl(25 100% 55% / 0.5)',
-                }}
-                transition={{ duration: 0.3, ease: 'easeOut' }}
-              >
-                {/* Floating icon with GSAP animation */}
-                <div
-                  ref={(el) => (iconRefs.current[index] = el)}
-                  className={`w-16 h-16 rounded-xl bg-gradient-to-br ${pillar.gradient} flex items-center justify-center mb-6`}
-                >
-                  <motion.div
-                    whileHover={{ scale: 1.1 }}
-                    transition={{ duration: 0.3 }}
-                  >
-                    <pillar.icon className="w-8 h-8 text-foreground" />
-                  </motion.div>
-                </div>
+            />
+          )}
+          
+          <Icon 
+            size={32} 
+            className="relative z-10 transition-all duration-500"
+            style={{
+              color: isHovered ? 'rgba(255, 255, 255, 0.95)' : 'rgba(255, 255, 255, 0.7)',
+            }}
+          />
+        </div>
 
-                <h3 className="font-display text-2xl font-bold mb-4 text-foreground group-hover:text-primary transition-colors duration-300">
-                  {pillar.title}
-                </h3>
-                <p className="text-muted-foreground leading-relaxed">
-                  {pillar.description}
-                </p>
-              </motion.div>
-            </motion.div>
-          ))}
+        <div 
+          className="mt-6 text-center transition-all duration-500"
+          style={{
+            opacity: isAnyHovered && !isHovered ? 0.4 : 1,
+          }}
+        >
+          <h3 
+            className="text-lg font-medium tracking-wide whitespace-nowrap transition-colors duration-500"
+            style={{
+              color: isHovered ? 'rgba(255, 255, 255, 0.95)' : 'rgba(255, 255, 255, 0.8)',
+            }}
+          >
+            {domain.title}
+          </h3>
+          
+          <div 
+            className="overflow-hidden transition-all duration-500 ease-out"
+            style={{
+              maxHeight: isHovered ? '60px' : '0px',
+              opacity: isHovered ? 1 : 0,
+              marginTop: isHovered ? '8px' : '0px',
+            }}
+          >
+            <p className="text-sm text-gray-400 leading-relaxed max-w-xs">
+              {domain.description}
+            </p>
+          </div>
         </div>
       </div>
-    </section>
+    </div>
   );
 };
+
+interface ConnectorLineProps {
+  startX: number;
+  startY: number;
+  endX: number;
+  endY: number;
+  isVisible: boolean;
+}
+
+const ConnectorLine: React.FC<ConnectorLineProps> = ({ 
+  startX, 
+  startY, 
+  endX, 
+  endY, 
+  isVisible 
+}) => {
+  const length = Math.sqrt(Math.pow(endX - startX, 2) + Math.pow(endY - startY, 2));
+  const angle = Math.atan2(endY - startY, endX - startX) * (180 / Math.PI);
+
+  return (
+    <div
+      className="absolute pointer-events-none"
+      style={{
+        left: `${startX}%`,
+        top: `${startY}%`,
+        width: `${length}%`,
+        height: '1px',
+        transformOrigin: 'left center',
+        transform: `rotate(${angle}deg)`,
+      }}
+    >
+      <div 
+        className="absolute inset-0 bg-gradient-to-r from-white/40 via-white/20 to-transparent transition-all duration-700"
+        style={{
+          opacity: isVisible ? 1 : 0,
+          transform: isVisible ? 'scaleX(1)' : 'scaleX(0)',
+          transformOrigin: 'left',
+          boxShadow: isVisible ? '0 0 8px rgba(255, 255, 255, 0.3)' : 'none',
+        }}
+      />
+    </div>
+  );
+};
+
+/* ---------------- Identity Section ---------------- */
+
+export default function IdentitySection() {
+  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+
+  return (
+    <section className="relative min-h-screen bg-zinc-950 overflow-hidden flex items-center justify-center">
+      {/* Ambient background elements */}
+      <div className="absolute inset-0 pointer-events-none">
+        <div 
+          className="absolute top-1/4 left-1/4 w-96 h-96 rounded-full opacity-10"
+          style={{
+            background: 'radial-gradient(circle, rgba(99, 102, 241, 0.3) 0%, transparent 70%)',
+            filter: 'blur(60px)',
+          }}
+        />
+        <div 
+          className="absolute bottom-1/4 right-1/4 w-96 h-96 rounded-full opacity-10"
+          style={{
+            background: 'radial-gradient(circle, rgba(168, 85, 247, 0.3) 0%, transparent 70%)',
+            filter: 'blur(60px)',
+          }}
+        />
+      </div>
+
+
+
+      {/* Globe with Domain Nodes */}
+      <motion.div
+        initial={{ opacity: 0, scale: 0.9 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 1 }}
+        className="flex items-center justify-center relative"
+      >
+        <Globe />
+      </motion.div>
+
+      {/* Domain Nodes */}
+      {domains.map((domain, index) => (
+        <DomainNode
+          key={index}
+          domain={domain}
+          index={index}
+          hoveredIndex={hoveredIndex}
+          setHoveredIndex={setHoveredIndex}
+        />
+      ))}
+
+      {/* CSS Animations */}
+      <style>{`
+        @keyframes pulse {
+          0%, 100% {
+            opacity: 0.3;
+            transform: scale(1);
+          }
+          50% {
+            opacity: 0.6;
+            transform: scale(1.05);
+          }
+        }
+      `}</style>
+    </section>
+  );
+}

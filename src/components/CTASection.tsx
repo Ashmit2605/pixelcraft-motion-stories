@@ -43,14 +43,7 @@ export const CTASection = () => {
           transition={{ duration: 0.8 }}
           className="text-center max-w-4xl mx-auto"
         >
-          <motion.div
-            initial={{ scale: 0 }}
-            animate={isInView ? { scale: 1 } : {}}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-br from-primary to-secondary mb-8"
-          >
-            <Sparkles className="w-10 h-10 text-primary-foreground" />
-          </motion.div>
+          
 
           <h2 className="font-display text-4xl md:text-6xl lg:text-7xl font-bold mb-6 leading-tight">
             Ready to Bring Your
@@ -63,9 +56,7 @@ export const CTASection = () => {
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button variant="hero" size="xl" asChild>
-              <Link to="/join">Join PixelCraft</Link>
-            </Button>
+            
             <Button variant="hero-outline" size="xl" asChild>
               <Link to="/contact">Contact Us</Link>
             </Button>

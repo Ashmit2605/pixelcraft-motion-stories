@@ -1,38 +1,19 @@
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { Navigation } from '@/components/Navigation';
+import  Navigation  from '@/components/Navigation';
 import { Footer } from '@/components/Footer';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Target, Eye, Sparkles, Rocket, Heart, Zap } from 'lucide-react';
 import { useRef } from 'react';
+import { Lightbulb, PenTool, Play } from "lucide-react"
 
-const journeySteps = [
-  {
-    year: '2021',
-    title: 'The Spark',
-    description: 'A group of animation enthusiasts came together with a shared dream — to create a space where creativity knows no bounds.',
-  },
-  {
-    year: '2022',
-    title: 'First Steps',
-    description: 'We hosted our first workshop with just 12 members. The energy in that room was electric.',
-  },
-  {
-    year: '2023',
-    title: 'Growing Community',
-    description: '100+ members joined PixelCraft. We launched our first collaborative project showcased at the university festival.',
-  },
-  {
-    year: '2024',
-    title: 'Industry Recognition',
-    description: 'Our work caught the attention of animation studios. Partnerships formed. Members got internships.',
-  },
-  {
-    year: 'Future',
-    title: 'Limitless Horizons',
-    description: 'We\'re just getting started. More workshops, more projects, more opportunities to create magic.',
-  },
-];
+const steps = [
+  { icon: Lightbulb, title: "Ideation", description: "Brainstorm creative concepts and storylines" },
+  { icon: PenTool, title: "Design", description: "Create storyboards, characters, and visual assets" },
+  { icon: Play, title: "Animation", description: "Bring designs to life through motion" },
+  { icon: Sparkles, title: "Polish", description: "Add effects, sound, and final touches" },
+]
+
 
 const differentiators = [
   {
@@ -62,20 +43,21 @@ const differentiators = [
 ];
 
 const About = () => {
-  const timelineRef = useRef<HTMLDivElement>(null);
+ 
+   const containerRef = useRef<HTMLDivElement>(null)
   const { scrollYProgress } = useScroll({
-    target: timelineRef,
-    offset: ["start end", "end start"]
-  });
-  
-  const lineHeight = useTransform(scrollYProgress, [0, 0.8], ["0%", "100%"]);
+    target: containerRef,
+    offset: ["start end", "end start"],
+  })
+
+  const lineHeight = useTransform(scrollYProgress, [0.2, 0.8], ["0%", "100%"])
 
   return (
     <div className="min-h-screen bg-background overflow-hidden">
       <Navigation />
       
       {/* Hero Section with Animated Background */}
-      <section className="relative min-h-[70vh] flex items-center justify-center overflow-hidden pt-24">
+      <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden pt-24">
         {/* Animated gradient orbs */}
         <div className="absolute inset-0 overflow-hidden">
           <motion.div
@@ -209,68 +191,68 @@ const About = () => {
         </div>
       </section>
 
-      {/* Journey Timeline */}
-      <section className="py-32 relative" ref={timelineRef}>
-        <div className="container mx-auto px-6 lg:px-8">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className="text-center mb-20"
-          >
-            <h2 className="font-display text-4xl md:text-5xl font-bold mb-4">
-              Our <span className="text-gradient">Journey</span>
-            </h2>
-            <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-              Every great story has a beginning. Here's ours.
-            </p>
-          </motion.div>
+       <section ref={containerRef} className="py-32 relative overflow-hidden">
+      <div className="max-w-7xl mx-auto px-6">
+        <motion.div
+          initial={{ opacity: 0, y: 40 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+          viewport={{ once: true }}
+          className="text-center mb-20"
+        >
+          <h2 className="font-[family-name:var(--font-space-grotesk)] text-4xl md:text-5xl font-bold mb-4">
+            Our <span className="gradient-text">Process</span>
+          </h2>
+          <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
+            From concept to completion, here&apos;s how we bring animations to life.
+          </p>
+        </motion.div>
 
-          <div className="relative max-w-4xl mx-auto">
-            {/* Animated timeline line */}
-            <div className="absolute left-4 md:left-1/2 top-0 bottom-0 w-px bg-border/30">
-              <motion.div 
-                className="w-full bg-gradient-to-b from-primary via-secondary to-accent"
-                style={{ height: lineHeight }}
-              />
-            </div>
+        <div className="relative">
+          {/* Progress line */}
+          <div className="absolute left-1/2 top-0 bottom-0 w-0.5 bg-border -translate-x-1/2 hidden md:block">
+            <motion.div className="w-full bg-gradient-to-b from-primary to-secondary" style={{ height: lineHeight }} />
+          </div>
 
-            {journeySteps.map((step, index) => (
+          <div className="space-y-16 md:space-y-24">
+            {steps.map((step, index) => (
               <motion.div
-                key={step.year}
-                initial={{ opacity: 0, y: 50 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: "-50px" }}
-                transition={{ duration: 0.6, delay: index * 0.1 }}
-                className={`relative flex items-center mb-16 last:mb-0 ${
-                  index % 2 === 0 ? 'md:flex-row' : 'md:flex-row-reverse'
-                }`}
+                key={step.title}
+                initial={{ opacity: 0, x: index % 2 === 0 ? -50 : 50 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.6, delay: 0.2 }}
+                viewport={{ once: true }}
+                className={`flex items-center gap-8 ${
+                  index % 2 === 0 ? "md:flex-row" : "md:flex-row-reverse"
+                } flex-col md:flex-row`}
               >
-                {/* Timeline dot */}
-                <motion.div 
-                  className="absolute left-4 md:left-1/2 w-4 h-4 -translate-x-1/2 rounded-full bg-primary z-10 ring-4 ring-background"
-                  whileInView={{ scale: [0, 1.2, 1] }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.5, delay: index * 0.1 + 0.2 }}
-                />
+                <div className={`flex-1 ${index % 2 === 0 ? "md:text-right" : "md:text-left"} text-center`}>
+                  <h3 className="font-[family-name:var(--font-space-grotesk)] text-2xl font-bold text-foreground mb-2">
+                    {step.title}
+                  </h3>
+                  <p className="text-muted-foreground">{step.description}</p>
+                </div>
 
-                {/* Content card */}
-                <div className={`ml-12 md:ml-0 md:w-[calc(50%-2rem)] ${index % 2 === 0 ? 'md:pr-8' : 'md:pl-8'}`}>
-                  <motion.div 
-                    className="glass rounded-2xl p-6 border border-border/30 hover:border-primary/30 transition-all duration-300"
-                    whileHover={{ y: -5 }}
+                <div className="relative z-10">
+                  <motion.div
+                    className="w-16 h-16 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center"
+                    whileInView={{ scale: [0.8, 1.1, 1] }}
+                    transition={{ duration: 0.5 }}
+                    viewport={{ once: true }}
                   >
-                    <span className="text-primary font-display font-bold text-2xl">{step.year}</span>
-                    <h3 className="font-display text-xl font-bold text-foreground mt-2 mb-3">{step.title}</h3>
-                    <p className="text-muted-foreground">{step.description}</p>
+                    <step.icon className="text-background" size={24} />
                   </motion.div>
                 </div>
+
+                <div className="flex-1" />
               </motion.div>
             ))}
           </div>
         </div>
-      </section>
+      </div>
+    </section>
+
+     
 
       {/* What Makes Us Different */}
       <section className="py-32 relative">
@@ -325,9 +307,7 @@ const About = () => {
             transition={{ duration: 0.6, delay: 0.4 }}
             className="text-center mt-16"
           >
-            <Button variant="hero" size="xl" asChild>
-              <Link to="/join">Start Your Journey</Link>
-            </Button>
+           
           </motion.div>
         </div>
       </section>
@@ -338,3 +318,7 @@ const About = () => {
 };
 
 export default About;
+
+
+
+   

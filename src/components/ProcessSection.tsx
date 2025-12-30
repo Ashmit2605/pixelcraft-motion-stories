@@ -1,102 +1,210 @@
-import { motion, useInView } from 'framer-motion';
-import { useRef } from 'react';
-import { Lightbulb, Pencil, Clapperboard, Eye } from 'lucide-react';
+import { useState, useEffect, useCallback } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Lightbulb, Palette, Play, Sparkles } from "lucide-react";
+import { LucideIcon } from "lucide-react";
 
-const steps = [
+interface Step {
+  word: string;
+  description: string;
+  icon: LucideIcon;
+  number: string;
+}
+
+const steps: Step[] = [
   {
-    number: '01',
+    word: "IDEATE",
+    description: "Where concepts are born through collaborative exploration and strategic thinking.",
     icon: Lightbulb,
-    title: 'Ideate',
-    description: 'Brainstorm creative concepts and develop your story',
+    number: "01",
   },
   {
-    number: '02',
-    icon: Pencil,
-    title: 'Design',
-    description: 'Create storyboards and design visual elements',
+    word: "DESIGN",
+    description: "Crafting visual narratives with precision, artistry, and intentional detail.",
+    icon: Palette,
+    number: "02",
   },
   {
-    number: '03',
-    icon: Clapperboard,
-    title: 'Animate',
-    description: 'Bring your designs to life with motion',
+    word: "ANIMATE",
+    description: "Breathing life into every frame through motion that moves audiences.",
+    icon: Play,
+    number: "03",
   },
   {
-    number: '04',
-    icon: Eye,
-    title: 'Showcase',
-    description: 'Share your work with the world',
+    word: "SHOWCASE",
+    description: "Delivering polished experiences that captivate and leave lasting impressions.",
+    icon: Sparkles,
+    number: "04",
   },
 ];
 
-export const ProcessSection = () => {
-  const ref = useRef(null);
-  const isInView = useInView(ref, { once: true, margin: '-100px' });
+const ProcessSection = () => {
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [isTransitioning, setIsTransitioning] = useState(false);
+
+  const nextStep = useCallback(() => {
+    setIsTransitioning(true);
+    setTimeout(() => {
+      setCurrentIndex((prev) => (prev + 1) % steps.length);
+      setIsTransitioning(false);
+    }, 400);
+  }, []);
+
+  useEffect(() => {
+    const interval = setInterval(nextStep, 4000);
+    return () => clearInterval(interval);
+  }, [nextStep]);
+
+  const currentStep = steps[currentIndex];
+  const Icon = currentStep.icon;
 
   return (
-    <section ref={ref} className="py-32 relative overflow-hidden grain">
-      <div className="absolute inset-0 bg-gradient-to-b from-card/30 via-background to-card/30" />
+    <section className="relative min-h-screen w-full overflow-hidden bg-background flex flex-col items-center justify-center px-6 md:px-12">
+      {/* Minimal ambient gradient */}
+      <div className="absolute inset-0 bg-gradient-to-b from-background via-background to-secondary/20" />
+      
+      {/* Top branding */}
+      <motion.header
+        className="absolute top-8 md:top-12 left-0 right-0 flex justify-center"
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8, delay: 0.2 }}
+      >
+        <span className="text-[10px] md:text-xs tracking-ultra-wide text-muted-foreground uppercase">
+          PixelCraft Animation Club
+        </span>
+      </motion.header>
 
-      <div className="container mx-auto px-6 lg:px-8 relative z-10">
-        <motion.div
-          initial={{ opacity: 0, y: 40 }}
-          animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.8 }}
-          className="text-center mb-20"
-        >
-          <h2 className="font-display text-4xl md:text-5xl font-bold mb-6">
-            How <span className="text-gradient">PixelCraft</span> Works
-          </h2>
-          <p className="text-xl text-muted-foreground">
-            From idea to showcase in four simple steps
-          </p>
-        </motion.div>
+      {/* Step indicator */}
+      <motion.div
+        className="absolute top-24 md:top-28 left-0 right-0 flex justify-center gap-3"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.6, delay: 0.4 }}
+      >
+        {steps.map((_, index) => (
+          <button
+            key={index}
+            onClick={() => {
+              if (index !== currentIndex) {
+                setIsTransitioning(true);
+                setTimeout(() => {
+                  setCurrentIndex(index);
+                  setIsTransitioning(false);
+                }, 400);
+              }
+            }}
+            className="group relative p-2"
+            aria-label={`Go to step ${index + 1}`}
+          >
+            <div
+              className={`h-[1px] w-8 md:w-12 transition-all duration-500 ${
+                index === currentIndex ? "bg-foreground" : "bg-muted-foreground/30"
+              }`}
+            />
+          </button>
+        ))}
+      </motion.div>
 
-        <div className="relative">
-          {/* Connection Line */}
-          <div className="hidden lg:block absolute top-1/2 left-0 right-0 h-0.5 bg-gradient-to-r from-primary/20 via-secondary/40 to-accent/20 -translate-y-1/2" />
-          
-          <motion.div
-            initial={{ scaleX: 0 }}
-            animate={isInView ? { scaleX: 1 } : {}}
-            transition={{ duration: 1.5, delay: 0.5, ease: 'easeOut' }}
-            className="hidden lg:block absolute top-1/2 left-0 right-0 h-0.5 bg-gradient-to-r from-primary via-secondary to-accent -translate-y-1/2 origin-left"
-          />
+      {/* Main content */}
+      <div className="relative z-10 flex flex-col items-center text-center max-w-4xl">
+        {/* Step number */}
+        <AnimatePresence mode="wait">
+          <motion.span
+            key={`number-${currentIndex}`}
+            className="text-xs md:text-sm tracking-ultra-wide text-muted-foreground mb-6 md:mb-8 font-body"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.4, ease: "easeOut" }}
+          >
+            {currentStep.number} / 04
+          </motion.span>
+        </AnimatePresence>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {steps.map((step, index) => (
-              <motion.div
-                key={step.title}
-                initial={{ opacity: 0, y: 50 }}
-                animate={isInView ? { opacity: 1, y: 0 } : {}}
-                transition={{ duration: 0.6, delay: index * 0.2 }}
-                className="relative group"
-              >
-                <div className="glass rounded-2xl p-8 text-center relative border border-border/30 hover:border-primary/50 transition-all duration-500">
-                  {/* Number Badge */}
-                  <div className="absolute -top-4 left-1/2 -translate-x-1/2 w-8 h-8 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-xs font-bold text-primary-foreground">
-                    {step.number}
-                  </div>
-
-                  <motion.div
-                    whileHover={{ scale: 1.1, rotate: 10 }}
-                    className="w-16 h-16 mx-auto rounded-xl bg-gradient-to-br from-card to-muted flex items-center justify-center mb-6 mt-2"
-                  >
-                    <step.icon className="w-8 h-8 text-primary" />
-                  </motion.div>
-
-                  <h3 className="font-display text-xl font-bold mb-3 text-foreground">
-                    {step.title}
-                  </h3>
-                  <p className="text-sm text-muted-foreground">
-                    {step.description}
-                  </p>
-                </div>
-              </motion.div>
-            ))}
-          </div>
+        {/* Main headline */}
+        <div className="relative h-[120px] md:h-[180px] lg:h-[220px] flex items-center justify-center overflow-hidden">
+          <AnimatePresence mode="wait">
+            <motion.h1
+              key={`headline-${currentIndex}`}
+              className="text-[4rem] md:text-[8rem] lg:text-[10rem] font-light tracking-tight leading-none"
+              style={{ fontFamily: "'Cormorant Garamond', serif" }}
+              initial={{ 
+                opacity: 0, 
+                y: 60,
+                filter: "blur(12px)",
+              }}
+              animate={{ 
+                opacity: isTransitioning ? 0.3 : 1, 
+                y: 0,
+                filter: isTransitioning ? "blur(4px)" : "blur(0px)",
+              }}
+              exit={{ 
+                opacity: 0, 
+                y: -60,
+                filter: "blur(12px)",
+              }}
+              transition={{ 
+                duration: 0.6, 
+                ease: [0.22, 1, 0.36, 1],
+              }}
+            >
+              {currentStep.word}
+            </motion.h1>
+          </AnimatePresence>
         </div>
+
+        {/* Icon */}
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={`icon-${currentIndex}`}
+            className="mt-8 md:mt-12 mb-6 md:mb-8"
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.8 }}
+            transition={{ duration: 0.4, delay: 0.1 }}
+          >
+            <Icon className="w-5 h-5 md:w-6 md:h-6 text-muted-foreground" strokeWidth={1.5} />
+          </motion.div>
+        </AnimatePresence>
+
+        {/* Description */}
+        <AnimatePresence mode="wait">
+          <motion.p
+            key={`desc-${currentIndex}`}
+            className="text-sm md:text-base text-muted-foreground max-w-md leading-relaxed font-body font-light"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            transition={{ duration: 0.5, delay: 0.15, ease: "easeOut" }}
+          >
+            {currentStep.description}
+          </motion.p>
+        </AnimatePresence>
       </div>
+
+      {/* Bottom decorative line */}
+      <motion.div
+        className="absolute bottom-20 md:bottom-24 left-1/2 -translate-x-1/2"
+        initial={{ opacity: 0, scaleX: 0 }}
+        animate={{ opacity: 1, scaleX: 1 }}
+        transition={{ duration: 0.8, delay: 0.6 }}
+      >
+        <div className="w-[1px] h-12 md:h-16 bg-gradient-to-b from-muted-foreground/30 to-transparent" />
+      </motion.div>
+
+      {/* Footer */}
+      <motion.footer
+        className="absolute bottom-8 md:bottom-12 left-0 right-0 flex justify-center"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.6, delay: 0.8 }}
+      >
+        <span className="text-[10px] md:text-xs tracking-wide text-muted-foreground/50 font-body">
+          Our Creative Process
+        </span>
+      </motion.footer>
     </section>
   );
 };
+
+export default ProcessSection;

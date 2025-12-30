@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { Navigation } from '@/components/Navigation';
+import  Navigation  from '@/components/Navigation';
 import { Footer } from '@/components/Footer';
 import { ArrowLeft, Linkedin, Twitter, Instagram, Github } from 'lucide-react';
 import { useState } from 'react';

@@ -1,127 +1,185 @@
-import { useState, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
+import { useState, useEffect, useRef } from 'react';
 import { Menu, X } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import Logo from "../assets/Logo.jpeg" // Adjust the import path as needed
 
 const navLinks = [
   { name: 'About', path: '/about' },
   { name: 'Team', path: '/team' },
   { name: 'Events', path: '/events' },
-  { name: 'Join', path: '/join' },
+  { name: 'Gallery', path: '/gallery' },
   { name: 'Contact', path: '/contact' },
 ];
 
-export const Navigation = () => {
+export default function Navigation() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const location = useLocation();
+  const [isVisible, setIsVisible] = useState(true);
+  const [activePath, setActivePath] = useState('#about');
+
+  const navRef = useRef(null);
+  const bgRef = useRef(null);
+  const lastScrollY = useRef(0);
+  const ticking = useRef(false);
+
+  useEffect(() => {
+    // Initial entrance animation using vanilla JS for smooth performance
+    const nav = navRef.current;
+    nav.style.transform = 'translateY(-100px)';
+    nav.style.opacity = '0';
+
+    requestAnimationFrame(() => {
+      nav.style.transition = 'transform 0.8s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.8s ease';
+      nav.style.transform = 'translateY(0)';
+      nav.style.opacity = '1';
+    });
+  }, []);
 
   useEffect(() => {
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 50);
+      if (!ticking.current) {
+        window.requestAnimationFrame(() => {
+          const currentScrollY = window.scrollY;
+          const scrollDifference = currentScrollY - lastScrollY.current;
+
+          // Update scroll state with smooth background fade
+          if (currentScrollY > 50 && !isScrolled) {
+            setIsScrolled(true);
+            if (bgRef.current) {
+              bgRef.current.style.transition = 'opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1)';
+              bgRef.current.style.opacity = '1';
+            }
+          } else if (currentScrollY <= 50 && isScrolled) {
+            setIsScrolled(false);
+            if (bgRef.current) {
+              bgRef.current.style.transition = 'opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1)';
+              bgRef.current.style.opacity = '0';
+            }
+          }
+
+          // Handle navbar contraction with debouncing
+          if (scrollDifference > 5 && currentScrollY > 100 && isVisible) {
+            setIsVisible(false);
+            if (navRef.current) {
+              navRef.current.style.transition = 'all 0.5s cubic-bezier(0.16, 1, 0.3, 1)';
+              navRef.current.style.width = '60%';
+              navRef.current.style.borderRadius = '9999px';
+              navRef.current.style.marginTop = '1rem';
+            }
+          } else if (scrollDifference < -5 && !isVisible) {
+            setIsVisible(true);
+            if (navRef.current) {
+              navRef.current.style.transition = 'all 0.5s cubic-bezier(0.16, 1, 0.3, 1)';
+              navRef.current.style.width = '100%';
+              navRef.current.style.borderRadius = '0px';
+              navRef.current.style.marginTop = '0rem';
+            }
+          }
+
+          lastScrollY.current = currentScrollY;
+          ticking.current = false;
+        });
+
+        ticking.current = true;
+      }
     };
-    window.addEventListener('scroll', handleScroll);
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+  }, [isScrolled, isVisible]);
 
   return (
     <>
-      <motion.nav
-        initial={{ y: -100 }}
-        animate={{ y: 0 }}
-        transition={{ duration: 0.6, ease: 'easeOut' }}
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
-          isScrolled
-            ? 'bg-background/80 backdrop-blur-xl border-b border-border/50'
-            : 'bg-transparent'
-        }`}
+      <nav
+        ref={navRef}
+        className="fixed top-0 left-0 right-0 z-50 mx-auto"
+        style={{ width: '100%' }}
       >
-        <div className="container mx-auto px-6 lg:px-8">
-          <div className="flex items-center justify-between h-20">
-            {/* Logo */}
-            <Link to="/" className="flex items-center gap-2 group">
-              <motion.div
-                whileHover={{ rotate: 360 }}
-                transition={{ duration: 0.6 }}
-                className="w-10 h-10 rounded-lg bg-gradient-to-br from-primary to-secondary flex items-center justify-center"
+        {/* Background layer with fade effect */}
+        <div
+          ref={bgRef}
+          className="absolute inset-0 bg-background/80 backdrop-blur-xl border-b border-border/50 rounded-lg"
+          style={{ opacity: 0 }}
+        />
+
+        {/* Content layer */}
+        <div className="relative">
+          <div className="container mx-auto px-6 lg:px-8">
+            <div className="flex items-center justify-between h-20">
+              {/* Logo */}
+              <a href="#" className="flex items-center gap-2 group">
+                <img
+                  src={Logo}
+                  alt="PixelCraft Logo"
+                  className="w-12 h-12 rounded-lg "
+                />
+                <span className="font-display font-bold text-xl text-foreground group-hover:bg-gradient-to-r group-hover:from-primary group-hover:to-secondary group-hover:bg-clip-text group-hover:text-transparent transition-all duration-300">
+                  PixelCraft
+                </span>
+              </a>
+
+              {/* Desktop Navigation */}
+              <div className="hidden md:flex items-center gap-8">
+                {navLinks.map((link) => (
+                  <a
+                    key={link.name}
+                    href={link.path}
+                    onClick={() => {
+
+                      setActivePath(link.path);
+                    }}
+                    className="relative text-sm font-medium text-muted-foreground hover:text-foreground transition-colors duration-300 group"
+                  >
+                    {link.name}
+                    {activePath === link.path && (
+                      <span className="absolute -bottom-1 left-0 right-0 h-0.5 bg-gradient-to-r from-primary to-secondary animate-fade-in rounded-full" />
+                    )}
+                  </a>
+                ))}
+              </div>
+
+
+
+              {/* Mobile Menu Button */}
+              <button
+                className="md:hidden text-foreground p-2 hover:bg-muted/50 rounded-lg transition-colors"
+                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                aria-label="Toggle menu"
               >
-                <span className="text-primary-foreground font-display font-bold text-xl">P</span>
-              </motion.div>
-              <span className="font-display font-bold text-xl text-foreground group-hover:text-gradient transition-all duration-300">
-                PixelCraft
-              </span>
-            </Link>
-
-            {/* Desktop Navigation */}
-            <div className="hidden md:flex items-center gap-8">
-              {navLinks.map((link) => (
-                <Link
-                  key={link.name}
-                  to={link.path}
-                  className={`nav-link text-sm font-medium transition-colors duration-300 ${
-                    location.pathname === link.path
-                      ? 'text-primary'
-                      : 'text-muted-foreground hover:text-foreground'
-                  }`}
-                >
-                  {link.name}
-                </Link>
-              ))}
+                {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+              </button>
             </div>
-
-            {/* CTA Button */}
-            <div className="hidden md:block">
-              <Button variant="hero" size="lg" asChild>
-                <Link to="/join">Join PixelCraft</Link>
-              </Button>
-            </div>
-
-            {/* Mobile Menu Button */}
-            <button
-              className="md:hidden text-foreground p-2"
-              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            >
-              {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
-            </button>
           </div>
         </div>
-      </motion.nav>
+      </nav>
 
       {/* Mobile Menu */}
-      <AnimatePresence>
-        {isMobileMenuOpen && (
-          <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            transition={{ duration: 0.3 }}
-            className="fixed inset-x-0 top-20 z-40 bg-background/95 backdrop-blur-xl border-b border-border md:hidden"
-          >
-            <div className="container mx-auto px-6 py-6 flex flex-col gap-4">
-              {navLinks.map((link) => (
-                <Link
-                  key={link.name}
-                  to={link.path}
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  className={`text-lg font-medium py-2 transition-colors ${
-                    location.pathname === link.path
-                      ? 'text-primary'
-                      : 'text-muted-foreground hover:text-foreground'
+      {isMobileMenuOpen && (
+        <div
+          className="fixed inset-x-0 top-20 z-40 bg-background/95 backdrop-blur-xl border-b border-border md:hidden overflow-hidden animate-slide-up"
+        >
+          <div className="container mx-auto px-6 py-6 flex flex-col gap-4">
+            {navLinks.map((link, index) => (
+              <a
+                key={link.name}
+                href={link.path}
+                onClick={() => {
+
+                  setActivePath(link.path);
+                  setIsMobileMenuOpen(false);
+                }}
+                className={`text-lg font-medium py-2 transition-colors animate-fade-in ${activePath === link.path
+                  ? 'bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent'
+                  : 'text-muted-foreground hover:text-foreground'
                   }`}
-                >
-                  {link.name}
-                </Link>
-              ))}
-              <Button variant="hero" size="lg" className="mt-4" asChild>
-                <Link to="/join" onClick={() => setIsMobileMenuOpen(false)}>
-                  Join PixelCraft
-                </Link>
-              </Button>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+                style={{ animationDelay: `${index * 100}ms` }}
+              >
+                {link.name}
+              </a>
+            ))}
+
+          </div>
+        </div>
+      )}
     </>
   );
-};
+}

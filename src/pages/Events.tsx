@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { Navigation } from '@/components/Navigation';
+import  Navigation  from '@/components/Navigation';
 import { Footer } from '@/components/Footer';
 import { ArrowLeft, Calendar, MapPin, Clock, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -10,13 +10,13 @@ const upcomingEvents = [
   {
     id: 1,
     title: 'Animation Workshop: Character Design',
-    date: 'January 15, 2025',
+    date: 'January 15, 2026',
     time: '4:00 PM - 6:00 PM',
     location: 'Design Studio, Room 302',
     description: 'Learn the fundamentals of character design for animation. From concept sketches to final designs, master the art of creating memorable characters.',
     image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&h=500&fit=crop',
     featured: true,
-    targetDate: new Date('2025-01-15T16:00:00'),
+    targetDate: new Date('2026-01-15T16:00:00'),
   },
   {
     id: 2,
@@ -75,9 +75,12 @@ const pastEvents = [
 
 const CountdownTimer = ({ targetDate }: { targetDate: Date }) => {
   const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    const timer = setInterval(() => {
+    setMounted(true);
+    
+    const calculateTime = () => {
       const now = new Date().getTime();
       const distance = targetDate.getTime() - now;
 
@@ -88,11 +91,18 @@ const CountdownTimer = ({ targetDate }: { targetDate: Date }) => {
           minutes: Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60)),
           seconds: Math.floor((distance % (1000 * 60)) / 1000),
         });
+      } else {
+        setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0 });
       }
-    }, 1000);
+    };
+
+    calculateTime();
+    const timer = setInterval(calculateTime, 1000);
 
     return () => clearInterval(timer);
   }, [targetDate]);
+
+  if (!mounted) return null;
 
   return (
     <div className="flex gap-4">
@@ -103,7 +113,15 @@ const CountdownTimer = ({ targetDate }: { targetDate: Date }) => {
             animate={{ scale: [1, 1.02, 1] }}
             transition={{ duration: 1, repeat: Infinity }}
           >
-            <span className="font-display text-2xl md:text-3xl font-bold text-primary">{value}</span>
+            <motion.span 
+              key={value}
+              initial={{ y: -10, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ duration: 0.3 }}
+              className="font-display text-2xl md:text-3xl font-bold text-primary"
+            >
+              {String(value).padStart(2, '0')}
+            </motion.span>
           </motion.div>
           <span className="text-xs text-muted-foreground mt-2 block capitalize">{unit}</span>
         </div>

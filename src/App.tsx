@@ -10,6 +10,7 @@ import Events from "./pages/Events";
 import Join from "./pages/Join";
 import Contact from "./pages/Contact";
 import NotFound from "./pages/NotFound";
+import GalleryGrid from "./pages/Gallery";
 
 const queryClient = new QueryClient();
 
@@ -26,6 +27,7 @@ const App = () => (
           <Route path="/events" element={<Events />} />
           <Route path="/join" element={<Join />} />
           <Route path="/contact" element={<Contact />} />
+          <Route path="/gallery" element={<GalleryGrid />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
