@@ -2,7 +2,6 @@ import { useState, useRef, useEffect } from 'react';
 import { ArrowLeft, Mail, MapPin, Send, Instagram, Twitter, Youtube, Linkedin } from 'lucide-react';
 import Navigation from '@/components/Navigation';
 import { Footer } from '@/components/Footer';
-
 const socialLinks = [
   { icon: Instagram, label: 'Instagram', href: 'https://www.instagram.com/pixel_craft_pccoer', color: 'hover:text-pink-500' },
 

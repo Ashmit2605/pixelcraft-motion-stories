@@ -3,8 +3,7 @@ import { Link } from 'react-router-dom';
 import  Navigation  from '@/components/Navigation';
 import { Footer } from '@/components/Footer';
 import { ArrowLeft, Calendar, MapPin, Clock, ArrowRight } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef, ReactNode } from 'react';
 
 const upcomingEvents = [
   {
@@ -72,6 +71,251 @@ const pastEvents = [
     attendees: 120,
   },
 ];
+
+// Cool Mode Component
+interface BaseParticle {
+  element: HTMLElement | SVGSVGElement
+  left: number
+  size: number
+  top: number
+}
+
+interface CoolParticle extends BaseParticle {
+  direction: number
+  speedHorz: number
+  speedUp: number
+  spinSpeed: number
+  spinVal: number
+}
+
+interface CoolParticleOptions {
+  particle?: string
+  size?: number
+  particleCount?: number
+  speedHorz?: number
+  speedUp?: number
+}
+
+const getContainer = () => {
+  const id = "_coolMode_effect"
+  const existingContainer = document.getElementById(id)
+
+  if (existingContainer) {
+    return existingContainer
+  }
+
+  const container = document.createElement("div")
+  container.setAttribute("id", id)
+  container.setAttribute(
+    "style",
+    "overflow:hidden; position:fixed; height:100%; top:0; left:0; right:0; bottom:0; pointer-events:none; z-index:2147483647"
+  )
+
+  document.body.appendChild(container)
+
+  return container
+}
+
+let instanceCounter = 0
+
+const applyParticleEffect = (
+  element: HTMLElement,
+  options?: CoolParticleOptions
+): (() => void) => {
+  instanceCounter++
+
+  const defaultParticle = "circle"
+  const particleType = options?.particle || defaultParticle
+  const sizes = [15, 20, 25, 35, 45]
+  const limit = 45
+
+  let particles: CoolParticle[] = []
+  let autoAddParticle = false
+  let mouseX = 0
+  let mouseY = 0
+
+  const container = getContainer()
+
+  function generateParticle() {
+    const size =
+      options?.size || sizes[Math.floor(Math.random() * sizes.length)]
+    const speedHorz = options?.speedHorz || Math.random() * 10
+    const speedUp = options?.speedUp || Math.random() * 25
+    const spinVal = Math.random() * 360
+    const spinSpeed = Math.random() * 35 * (Math.random() <= 0.5 ? -1 : 1)
+    const top = mouseY - size / 2
+    const left = mouseX - size / 2
+    const direction = Math.random() <= 0.5 ? -1 : 1
+
+    const particle = document.createElement("div")
+
+    if (particleType === "circle") {
+      const svgNS = "http://www.w3.org/2000/svg"
+      const circleSVG = document.createElementNS(svgNS, "svg")
+      const circle = document.createElementNS(svgNS, "circle")
+      circle.setAttributeNS(null, "cx", (size / 2).toString())
+      circle.setAttributeNS(null, "cy", (size / 2).toString())
+      circle.setAttributeNS(null, "r", (size / 2).toString())
+      circle.setAttributeNS(
+        null,
+        "fill",
+        `hsl(${Math.random() * 360}, 70%, 50%)`
+      )
+
+      circleSVG.appendChild(circle)
+      circleSVG.setAttribute("width", size.toString())
+      circleSVG.setAttribute("height", size.toString())
+
+      particle.appendChild(circleSVG)
+    } else if (
+      particleType.startsWith("http") ||
+      particleType.startsWith("/")
+    ) {
+      particle.innerHTML = `<img src="${particleType}" width="${size}" height="${size}" style="border-radius: 50%">`
+    } else {
+      const fontSizeMultiplier = 3
+      const emojiSize = size * fontSizeMultiplier
+      particle.innerHTML = `<div style="font-size: ${emojiSize}px; line-height: 1; text-align: center; width: ${size}px; height: ${size}px; display: flex; align-items: center; justify-content: center; transform: scale(${fontSizeMultiplier}); transform-origin: center;">${particleType}</div>`
+    }
+
+    particle.style.position = "absolute"
+    particle.style.transform = `translate3d(${left}px, ${top}px, 0px) rotate(${spinVal}deg)`
+
+    container.appendChild(particle)
+
+    particles.push({
+      direction,
+      element: particle,
+      left,
+      size,
+      speedHorz,
+      speedUp,
+      spinSpeed,
+      spinVal,
+      top,
+    })
+  }
+
+  function refreshParticles() {
+    particles.forEach((p) => {
+      p.left = p.left - p.speedHorz * p.direction
+      p.top = p.top - p.speedUp
+      p.speedUp = Math.min(p.size, p.speedUp - 1)
+      p.spinVal = p.spinVal + p.spinSpeed
+
+      if (
+        p.top >=
+        Math.max(window.innerHeight, document.body.clientHeight) + p.size
+      ) {
+        particles = particles.filter((o) => o !== p)
+        p.element.remove()
+      }
+
+      p.element.setAttribute(
+        "style",
+        [
+          "position:absolute",
+          "will-change:transform",
+          `top:${p.top}px`,
+          `left:${p.left}px`,
+          `transform:rotate(${p.spinVal}deg)`,
+        ].join(";")
+      )
+    })
+  }
+
+  let animationFrame: number | undefined
+
+  let lastParticleTimestamp = 0
+  const particleGenerationDelay = 30
+
+  function loop() {
+    const currentTime = performance.now()
+    if (
+      autoAddParticle &&
+      particles.length < limit &&
+      currentTime - lastParticleTimestamp > particleGenerationDelay
+    ) {
+      generateParticle()
+      lastParticleTimestamp = currentTime
+    }
+
+    refreshParticles()
+    animationFrame = requestAnimationFrame(loop)
+  }
+
+  loop()
+
+  const isTouchInteraction = "ontouchstart" in window
+
+  const tap = isTouchInteraction ? "touchstart" : "mousedown"
+  const tapEnd = isTouchInteraction ? "touchend" : "mouseup"
+  const move = isTouchInteraction ? "touchmove" : "mousemove"
+
+  const updateMousePosition = (e: MouseEvent | TouchEvent) => {
+    if ("touches" in e) {
+      mouseX = e.touches?.[0].clientX
+      mouseY = e.touches?.[0].clientY
+    } else {
+      mouseX = e.clientX
+      mouseY = e.clientY
+    }
+  }
+ const pomPomSound = new Audio('https://assets.mixkit.co/active_storage/sfx/2018/2018-preview.mp3');
+// Or use your own sound file URL
+  const tapHandler = (e: MouseEvent | TouchEvent) => {
+    updateMousePosition(e)
+    autoAddParticle = true
+    pomPomSound.currentTime = 0;
+  pomPomSound.play().catch(() => {}); 
+  }
+
+  const disableAutoAddParticle = () => {
+    autoAddParticle = false
+  }
+
+  element.addEventListener(move, updateMousePosition, { passive: true })
+  element.addEventListener(tap, tapHandler, { passive: true })
+  element.addEventListener(tapEnd, disableAutoAddParticle, { passive: true })
+  element.addEventListener("mouseleave", disableAutoAddParticle, {
+    passive: true,
+  })
+
+  return () => {
+    element.removeEventListener(move, updateMousePosition)
+    element.removeEventListener(tap, tapHandler)
+    element.removeEventListener(tapEnd, disableAutoAddParticle)
+    element.removeEventListener("mouseleave", disableAutoAddParticle)
+
+    const interval = setInterval(() => {
+      if (animationFrame && particles.length === 0) {
+        cancelAnimationFrame(animationFrame)
+        clearInterval(interval)
+
+        if (--instanceCounter === 0) {
+          container.remove()
+        }
+      }
+    }, 500)
+  }
+}
+
+interface CoolModeProps {
+  children: ReactNode
+  options?: CoolParticleOptions
+}
+
+const CoolMode: React.FC<CoolModeProps> = ({ children, options }) => {
+  const ref = useRef<HTMLSpanElement>(null)
+
+  useEffect(() => {
+    if (ref.current) {
+      return applyParticleEffect(ref.current, options)
+    }
+  }, [options])
+
+  return <span ref={ref}>{children}</span>
+}
 
 const CountdownTimer = ({ targetDate }: { targetDate: Date }) => {
   const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
@@ -218,10 +462,18 @@ const Events = () => {
                     </div>
                   </div>
 
-                  <Button variant="hero" size="xl">
-                    Reserve Your Spot
-                    <ArrowRight className="w-5 h-5 ml-2" />
-                  </Button>
+                  <div className="flex flex-wrap gap-4">
+                    <button className="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-primary to-primary/80 px-8 py-4 text-lg font-semibold text-primary-foreground shadow-lg shadow-primary/25 transition-all hover:shadow-xl hover:shadow-primary/40 hover:scale-105">
+                      Reserve Your Spot
+                      <ArrowRight className="w-5 h-5" />
+                    </button>
+                    
+                    <CoolMode options={{ particle: "✨", particleCount: 40, speedHorz: 8, speedUp: 20 }}>
+                      <button className="inline-flex items-center justify-center gap-2 rounded-xl border-2 border-primary/50 bg-background px-8 py-4 text-lg font-semibold text-foreground transition-all hover:border-primary hover:bg-primary/5">
+                        Are you excited? 🎉
+                      </button>
+                    </CoolMode>
+                  </div>
                 </motion.div>
               </div>
 

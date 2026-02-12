@@ -1,16 +1,16 @@
-import { motion, useScroll, useTransform } from 'framer-motion';
+import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import Navigation from '@/components/Navigation';
 import { Footer } from '@/components/Footer';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, X, ChevronLeft, ChevronRight, Play } from 'lucide-react';
 import { useState, useMemo, useEffect, useCallback, useRef } from "react";
-import { AnimatePresence } from "framer-motion";
-import { X, ChevronLeft, ChevronRight } from "lucide-react";
 
 // Types
 type Category = "all" | "events" | "workshops" | "behind-the-scenes" | "awards";
+type ImageEffect = "stack" | "disclose" | "skew" | "normal";
+type MediaType = "image" | "video";
 
-interface GalleryImage {
+interface GalleryItem {
     id: string;
     src: string;
     title: string;
@@ -18,99 +18,134 @@ interface GalleryImage {
     year: string;
     category: Category;
     size: "small" | "medium" | "large" | "tall" | "wide";
+    effect: ImageEffect;
+    angle?: string;
+    type: MediaType;
+    thumbnail?: string;
 }
 
-// Data - Replace these URLs with your own images
-const galleryImages: GalleryImage[] = [
+const randomAngles = ["-12deg", "-8deg", "-5deg", "0deg", "5deg", "8deg", "12deg", "-3deg", "3deg", "-10deg", "10deg"];
+const getRandomAngle = () => randomAngles[Math.floor(Math.random() * randomAngles.length)];
+
+const assignEffects = (items: Omit<GalleryItem, "effect" | "angle">[]): GalleryItem[] => {
+    const effects: ImageEffect[] = ["stack", "disclose", "skew", "normal"];
+    return items.map((item) => ({
+        ...item,
+        effect: effects[Math.floor(Math.random() * effects.length)],
+        angle: getRandomAngle(),
+    }));
+};
+
+const baseGalleryItems: Omit<GalleryItem, "effect" | "angle">[] = [
     {
         id: "1",
-        src: "https://images.unsplash.com/photo-1540553016722-983e48a2cd10?w=800&h=1000&fit=crop",
+        src: "https://drive.google.com/thumbnail?id=1a8ImP8OfEj64lgbVUJMr2lew8BI0Kprv&sz=w1000",
+        thumbnail: "https://drive.google.com/thumbnail?id=1a8ImP8OfEj64lgbVUJMr2lew8BI0Kprv&sz=w400",
         title: "Studio Session",
         location: "New York City",
         year: "2024",
         category: "events",
         size: "large",
+        type: "image",
     },
     {
         id: "2",
-        src: "https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?w=600&h=900&fit=crop",
-        title: "Lighting Masterclass",
+        src: "https://drive.google.com/file/d/15ib80NfBGELZnDlW3FEbBrzV-NcXjfSM/preview",
+        thumbnail: "https://drive.google.com/thumbnail?id=15ib80NfBGELZnDlW3FEbBrzV-NcXjfSM&sz=w400",
+        title: "Behind the Lens",
         location: "Los Angeles",
         year: "2024",
         category: "workshops",
-        size: "tall",
+        size: "large",
+        type: "video",
     },
     {
         id: "3",
-        src: "https://images.unsplash.com/photo-1505373877841-8d25f7d46678?w=900&h=500&fit=crop",
+       src: "https://drive.google.com/thumbnail?id=12foUKiunbYCL-1V1Q49TDzdP2moZOL24&sz=w1000",
+        thumbnail: "https://drive.google.com/thumbnail?id=12foUKiunbYCL-1V1Q49TDzdP2moZOL24&sz=w400",
         title: "Golden Frame Awards",
         location: "London",
         year: "2023",
         category: "awards",
         size: "wide",
+        type: "image",
     },
     {
         id: "4",
-        src: "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=600&h=750&fit=crop",
+       src: "https://drive.google.com/thumbnail?id=1mJ8gEK_0rEJ9AywLGcDzQisDr-XCUoOp&sz=w1000",
+        thumbnail: "https://drive.google.com/thumbnail?id=1mJ8gEK_0rEJ9AywLGcDzQisDr-XCUoOp&sz=w400",
         title: "Fashion Week Prep",
         location: "Paris",
         year: "2024",
         category: "behind-the-scenes",
         size: "medium",
+        type: "image",
     },
     {
         id: "5",
-        src: "https://images.unsplash.com/photo-1452587925148-ce544e77e70d?w=600&h=900&fit=crop",
-        title: "Golden Hour Collective",
+        src: "https://drive.google.com/file/d/1qR84cycetZ1l0aYTnghvbbkqVPVJp5j1/preview",
+        thumbnail: "https://drive.google.com/thumbnail?id=1qR84cycetZ1l0aYTnghvbbkqVPVJp5j1&sz=w400",
+        title: "Creative Process",
         location: "Santorini",
         year: "2023",
         category: "events",
-        size: "tall",
+        size: "wide",
+        type: "video",
     },
     {
         id: "6",
-        src: "https://images.unsplash.com/photo-1542038784456-1ea8e935640e?w=600&h=750&fit=crop",
+        src: "https://drive.google.com/thumbnail?id=1NaTqP6xEqY5EeQb_cBTzxDVqiwekgjas&sz=w1000",
+        thumbnail: "https://drive.google.com/thumbnail?id=1NaTqP6xEqY5EeQb_cBTzxDVqiwekgjas&sz=w400",
         title: "Portrait Series",
         location: "Milan",
         year: "2024",
         category: "events",
         size: "medium",
+        type: "image",
     },
     {
         id: "7",
-        src: "https://images.unsplash.com/photo-1606857521015-7f9fcf423740?w=900&h=500&fit=crop",
+        src: "https://drive.google.com/file/d/15ib80NfBGELZnDlW3FEbBrzV-NcXjfSM/preview",
+        thumbnail: "https://drive.google.com/thumbnail?id=15ib80NfBGELZnDlW3FEbBrzV-NcXjfSM&sz=w400",
         title: "Product Photography",
         location: "Tokyo",
         year: "2023",
         category: "workshops",
-        size: "wide",
+        size: "large",
+        type: "video",
     },
     {
         id: "8",
-        src: "https://images.unsplash.com/photo-1485846234645-a62644f84728?w=800&h=1000&fit=crop",
+        src: "https://drive.google.com/thumbnail?id=1WOGxPe1aEMTYFm9Bk2xUxuBamKU2eOSp&sz=w1000",
+        thumbnail: "https://drive.google.com/thumbnail?id=1WOGxPe1aEMTYFm9Bk2xUxuBamKU2eOSp&sz=w400",
         title: "Film Production",
         location: "Vancouver",
         year: "2024",
         category: "behind-the-scenes",
         size: "large",
+        type: "image",
     },
     {
         id: "9",
-        src: "https://images.unsplash.com/photo-1511285560929-80b456fea0bc?w=600&h=600&fit=crop",
+        src: "https://drive.google.com/thumbnail?id=1yeIpUcHe4Y5xU1RES7JkuAlt5UhZMaTT&sz=w1000",
+        thumbnail: "https://drive.google.com/thumbnail?id=1yeIpUcHe4Y5xU1RES7JkuAlt5UhZMaTT&sz=w400",
         title: "Creative Workshop",
         location: "Berlin",
         year: "2024",
         category: "workshops",
         size: "small",
+        type: "image",
     },
     {
         id: "10",
-        src: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&h=750&fit=crop",
-        title: "Animation Showcase",
+        src: "https://drive.google.com/file/d/18KZMrqq0h-QILXMJ8bfQQTkKLE-hT2qG/preview",
+        thumbnail: "https://drive.google.com/thumbnail?id=18KZMrqq0h-QILXMJ8bfQQTkKLE-hT2qG&sz=w400",
+        title: "Motion Showcase",
         location: "Amsterdam",
         year: "2023",
         category: "events",
-        size: "medium",
+        size: "wide",
+        type: "video",
     },
     {
         id: "11",
@@ -120,15 +155,18 @@ const galleryImages: GalleryImage[] = [
         year: "2024",
         category: "behind-the-scenes",
         size: "tall",
+        type: "image",
     },
     {
         id: "12",
-        src: "https://images.unsplash.com/photo-1492619375914-88005aa9e8fb?w=600&h=600&fit=crop",
-        title: "Motion Graphics",
+        src: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
+        thumbnail: "https://images.unsplash.com/photo-1618005198919-d3d4b5a92ead?w=600&h=600&fit=crop",
+        title: "Abstract Motion Art",
         location: "Toronto",
         year: "2023",
         category: "workshops",
-        size: "small",
+        size: "large",
+        type: "video",
     },
     {
         id: "13",
@@ -138,15 +176,18 @@ const galleryImages: GalleryImage[] = [
         year: "2024",
         category: "workshops",
         size: "medium",
+        type: "image",
     },
     {
         id: "14",
-        src: "https://images.unsplash.com/photo-1561736778-92e52a7769ef?w=900&h=500&fit=crop",
-        title: "Annual Gala",
+        src: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4",
+        thumbnail: "https://images.unsplash.com/photo-1579783902614-a3fb3927b6a5?w=900&h=500&fit=crop",
+        title: "Digital Animation",
         location: "Dubai",
         year: "2023",
         category: "awards",
         size: "wide",
+        type: "video",
     },
     {
         id: "15",
@@ -156,6 +197,7 @@ const galleryImages: GalleryImage[] = [
         year: "2024",
         category: "behind-the-scenes",
         size: "tall",
+        type: "image",
     },
     {
         id: "16",
@@ -165,6 +207,7 @@ const galleryImages: GalleryImage[] = [
         year: "2023",
         category: "workshops",
         size: "small",
+        type: "image",
     },
     {
         id: "17",
@@ -174,6 +217,7 @@ const galleryImages: GalleryImage[] = [
         year: "2024",
         category: "events",
         size: "large",
+        type: "image",
     },
     {
         id: "18",
@@ -183,8 +227,10 @@ const galleryImages: GalleryImage[] = [
         year: "2023",
         category: "behind-the-scenes",
         size: "medium",
+        type: "image",
     },
 ];
+const galleryItems = assignEffects(baseGalleryItems);
 
 const categories: { id: Category; label: string }[] = [
     { id: "all", label: "All Work" },
@@ -194,7 +240,6 @@ const categories: { id: Category; label: string }[] = [
     { id: "awards", label: "Awards" },
 ];
 
-// Category Filter Component
 const CategoryFilter = ({ activeCategory, onCategoryChange }: { activeCategory: Category; onCategoryChange: (cat: Category) => void }) => {
     return (
         <motion.div
@@ -226,8 +271,8 @@ const CategoryFilter = ({ activeCategory, onCategoryChange }: { activeCategory: 
     );
 };
 
-// Gallery Card Component
-const GalleryCard = ({ image, index, onClick }: { image: GalleryImage; index: number; onClick: () => void }) => {
+const GalleryCard = ({ item, index, onClick }: { item: GalleryItem; index: number; onClick: () => void }) => {
+    const [imageLoaded, setImageLoaded] = useState(false);
     const sizeClasses = {
         small: "col-span-1 row-span-1",
         medium: "col-span-1 row-span-1",
@@ -235,97 +280,248 @@ const GalleryCard = ({ image, index, onClick }: { image: GalleryImage; index: nu
         tall: "col-span-1 row-span-2",
         wide: "col-span-2 row-span-1",
     };
+const MediaContent = ({ showOverlay = true }: { showOverlay?: boolean }) => (
+    <>
+        {item.type === "video" ? (
+            <>
+                {item.src.includes('drive.google.com') ? (
+                    <iframe
+                        src={item.src}
+                        className="w-full h-full"
+                        allow="autoplay"
+                        title={item.title}
+                    />
+                ) : (
+                    <video
+                        src={item.src}
+                        className="w-full h-full object-cover"
+                        autoPlay
+                        muted
+                        loop
+                        playsInline
+                        preload="auto"
+                    />
+                )}
+        {showOverlay && (
+            <div className="absolute inset-0 flex items-center justify-center z-10 pointer-events-none">
+                <div className="bg-primary/20 backdrop-blur-sm flex size-16 items-center justify-center rounded-full border-2 border-white/80 transition-all duration-300 group-hover:scale-110">
+                    <Play className="size-6 fill-white text-white" />
+                </div>
+            </div>
+        )}
+    </>
+            ) : (
+                <img
+                    src={item.src}
+                    alt={item.title}
+                    className="w-full h-full object-cover"
+                    loading="lazy"
+                />
+            )}
+        </>
+    );
 
-    const offset = index % 3 === 0 ? 30 : index % 3 === 1 ? -20 : 10;
+    const InfoOverlay = () => (
+        <div className="absolute inset-0 flex flex-col justify-end p-4 md:p-6 pointer-events-none">
+            <span className="text-primary text-xs font-medium tracking-widest mb-1">
+                {item.year}
+            </span>
+            <h3 className="font-display text-lg md:text-xl text-foreground font-bold">
+                {item.title}
+            </h3>
+            <p className="text-muted-foreground text-sm">{item.location}</p>
+        </div>
+    );
+
+    const StackEffect = () => (
+        <motion.div
+            initial={{ opacity: 0, scale: 0.2 }}
+            whileInView={{ opacity: 1, scale: 1, rotate: item.angle }}
+            viewport={{ once: true, margin: "-50px" }}
+            transition={{
+                delay: index * 0.08,
+                duration: 0.5,
+                type: "spring",
+                stiffness: 120,
+                damping: 18,
+                mass: 0.8,
+            }}
+            whileHover={{
+                scale: 1.08,
+                rotate: "0deg",
+                zIndex: 30,
+                transition: { duration: 0.4, type: "spring", stiffness: 200, damping: 15 },
+            }}
+            className="w-full h-full relative group"
+        >
+            <div className="w-full h-full rounded-xl border-[6px] border-white shadow-2xl overflow-hidden">
+                <MediaContent />
+            </div>
+            <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-background/20 to-transparent rounded-xl pointer-events-none" />
+            <InfoOverlay />
+        </motion.div>
+    );
+
+    const DiscloseEffect = () => {
+        const vertical = Math.random() > 0.5;
+        return (
+            <motion.div 
+                className="relative w-full h-full overflow-hidden rounded-xl group"
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-50px" }}
+                transition={{ duration: 0.6, delay: index * 0.08 }}
+            >
+                <MediaContent />
+                {imageLoaded && (
+                    <>
+                        <motion.div
+                            className="absolute bg-primary z-20"
+                            initial={vertical ? { top: 0, height: "50%", width: "100%" } : { left: 0, width: "50%", height: "100%", top: 0, bottom: 0 }}
+                            animate={vertical ? { y: "-100%" } : { x: "-100%" }}
+                            transition={{ duration: 0.8, delay: index * 0.08 + 0.2, ease: [0.16, 1, 0.3, 1] }}
+                        />
+                        <motion.div
+                            className="absolute bg-primary z-20"
+                            initial={vertical ? { bottom: 0, height: "50%", width: "100%" } : { right: 0, width: "50%", height: "100%", top: 0, bottom: 0 }}
+                            animate={vertical ? { y: "100%" } : { x: "100%" }}
+                            transition={{ duration: 0.8, delay: index * 0.08 + 0.2, ease: [0.16, 1, 0.3, 1] }}
+                        />
+                    </>
+                )}
+                
+                <div className="absolute inset-0 bg-gradient-to-t from-background/70 via-transparent to-transparent" />
+                
+                <motion.div 
+                    className="absolute inset-0 flex flex-col justify-end p-4 md:p-6"
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: index * 0.08 + 0.8 }}
+                >
+                    <InfoOverlay />
+                </motion.div>
+            </motion.div>
+        );
+    };
+
+    const SkewEffect = () => (
+        <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true, margin: "-50px" }}
+            transition={{
+                duration: 0.6,
+                delay: index * 0.08,
+                ease: [0.16, 1, 0.3, 1],
+            }}
+            className="w-full h-full transition-all duration-500 ease-out rounded-xl overflow-hidden group"
+            style={{ clipPath: "polygon(0 0, 100% 0, 100% 100%, 0 100%)" }}
+            whileHover={{
+                scale: 0.96,
+                clipPath: "polygon(0 8%, 100% 0, 100% 92%, 0% 100%)",
+                transition: { duration: 0.4, ease: [0.16, 1, 0.3, 1] },
+            }}
+        >
+            <motion.div className="relative w-full h-full">
+                <motion.div
+                    className="w-full h-full"
+                    whileHover={{ 
+                        scale: 1.15,
+                        transition: { duration: 0.5, ease: [0.16, 1, 0.3, 1] }
+                    }}
+                >
+                    <MediaContent />
+                </motion.div>
+                
+                <div className="absolute inset-0 bg-gradient-to-t from-background/70 via-transparent to-transparent" />
+                
+                <motion.div 
+                    className="absolute inset-0 flex flex-col justify-end p-4 md:p-6"
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: index * 0.08 + 0.3 }}
+                >
+                    <InfoOverlay />
+                </motion.div>
+            </motion.div>
+        </motion.div>
+    );
+
+    const NormalEffect = () => (
+        <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-50px" }}
+            transition={{
+                duration: 0.6,
+                delay: index * 0.08,
+                ease: [0.16, 1, 0.3, 1],
+            }}
+            className="relative w-full h-full overflow-hidden rounded-xl group"
+            whileHover={{ scale: 1.02 }}
+        >
+            <motion.div
+                whileHover={{ scale: 1.1 }}
+                transition={{ duration: 0.5 }}
+                className="w-full h-full"
+            >
+                <MediaContent />
+            </motion.div>
+            
+            <div className="absolute inset-0 bg-gradient-to-t from-background/70 via-transparent to-transparent" />
+            
+            <motion.div 
+                className="absolute inset-0 flex flex-col justify-end p-4 md:p-6"
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: index * 0.08 + 0.3 }}
+            >
+                <InfoOverlay />
+            </motion.div>
+        </motion.div>
+    );
+
+    useEffect(() => {
+        setImageLoaded(true);
+    }, []);
 
     return (
         <motion.div
             layout
-            initial={{ opacity: 0, y: 60 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-50px" }}
             exit={{ opacity: 0, scale: 0.9 }}
-            transition={{
-                duration: 0.8,
-                delay: index * 0.05,
-                ease: [0.16, 1, 0.3, 1],
-            }}
-            className={`relative group cursor-pointer rounded-2xl overflow-hidden border border-border/30 hover:border-primary/50 ${sizeClasses[image.size]}`}
+            transition={{ duration: 0.4 }}
+            className={`relative cursor-pointer ${sizeClasses[item.size]}`}
             onClick={onClick}
-            style={{ transform: `translateY(${offset}px)` }}
-            whileHover={{ y: offset - 8 }}
         >
-            {/* Glow border animation */}
-            <motion.div
-                className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
-                style={{
-                    background: 'linear-gradient(135deg, transparent 0%, hsl(25 100% 55% / 0.1) 50%, transparent 100%)',
-                }}
-            />
-
-            <img
-                src={image.src}
-                alt={image.title}
-                className="w-full h-full object-cover"
-                loading="lazy"
-            />
-
-            <div className="absolute inset-0 bg-gradient-to-t from-background via-background/50 to-transparent opacity-60 group-hover:opacity-80 transition-opacity duration-500" />
-
-            <motion.div
-                className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700"
-                style={{
-                    background: "radial-gradient(circle at 50% 100%, hsl(25 100% 55% / 0.15) 0%, transparent 60%)",
-                }}
-            />
-
-            <div className="absolute inset-0 z-10 flex flex-col justify-end p-6">
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ duration: 0.5 }}
-                    className="transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500"
-                >
-                    <span className="inline-block text-primary text-xs font-medium tracking-widest mb-2 opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-100">
-                        {image.year}
-                    </span>
-                    <h3 className="font-display text-xl md:text-2xl text-foreground mb-1 font-bold transform translate-y-2 group-hover:translate-y-0 transition-transform duration-500">
-                        {image.title}
-                    </h3>
-                    <p className="text-muted-foreground text-sm opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-150">
-                        {image.location}
-                    </p>
-                </motion.div>
-            </div>
-
-            <div className="absolute top-4 right-4 w-8 h-8 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-                <div className="absolute top-0 right-0 w-4 h-px bg-primary/60" />
-                <div className="absolute top-0 right-0 w-px h-4 bg-primary/60" />
-            </div>
+            {item.effect === "stack" && <StackEffect />}
+            {item.effect === "disclose" && <DiscloseEffect />}
+            {item.effect === "skew" && <SkewEffect />}
+            {item.effect === "normal" && <NormalEffect />}
         </motion.div>
     );
 };
 
-// Lightbox Modal Component
-const LightboxModal = ({ image, onClose, images, onNavigate }: { image: GalleryImage | null; onClose: () => void; images: GalleryImage[]; onNavigate: (img: GalleryImage) => void }) => {
-    const currentIndex = image ? images.findIndex((img) => img.id === image.id) : -1;
+const LightboxModal = ({ item, onClose, items, onNavigate }: { item: GalleryItem | null; onClose: () => void; items: GalleryItem[]; onNavigate: (item: GalleryItem) => void }) => {
+    const currentIndex = item ? items.findIndex((i) => i.id === item.id) : -1;
 
     const goToPrevious = useCallback(() => {
         if (currentIndex > 0) {
-            onNavigate(images[currentIndex - 1]);
+            onNavigate(items[currentIndex - 1]);
         }
-    }, [currentIndex, images, onNavigate]);
+    }, [currentIndex, items, onNavigate]);
 
     const goToNext = useCallback(() => {
-        if (currentIndex < images.length - 1) {
-            onNavigate(images[currentIndex + 1]);
+        if (currentIndex < items.length - 1) {
+            onNavigate(items[currentIndex + 1]);
         }
-    }, [currentIndex, images, onNavigate]);
+    }, [currentIndex, items, onNavigate]);
 
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
-            if (!image) return;
+            if (!item) return;
             if (e.key === "Escape") onClose();
             if (e.key === "ArrowLeft") goToPrevious();
             if (e.key === "ArrowRight") goToNext();
@@ -333,10 +529,10 @@ const LightboxModal = ({ image, onClose, images, onNavigate }: { image: GalleryI
 
         window.addEventListener("keydown", handleKeyDown);
         return () => window.removeEventListener("keydown", handleKeyDown);
-    }, [image, onClose, goToPrevious, goToNext]);
+    }, [item, onClose, goToPrevious, goToNext]);
 
     useEffect(() => {
-        if (image) {
+        if (item) {
             document.body.style.overflow = "hidden";
         } else {
             document.body.style.overflow = "";
@@ -344,11 +540,11 @@ const LightboxModal = ({ image, onClose, images, onNavigate }: { image: GalleryI
         return () => {
             document.body.style.overflow = "";
         };
-    }, [image]);
+    }, [item]);
 
     return (
         <AnimatePresence>
-            {image && (
+            {item && (
                 <motion.div
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
@@ -384,16 +580,30 @@ const LightboxModal = ({ image, onClose, images, onNavigate }: { image: GalleryI
 
                         <div className="relative aspect-[16/10] bg-card rounded-2xl overflow-hidden border border-border/30">
                             <AnimatePresence mode="wait">
-                                <motion.img
-                                    key={image.id}
-                                    src={image.src}
-                                    alt={image.title}
-                                    initial={{ opacity: 0, scale: 1.05 }}
-                                    animate={{ opacity: 1, scale: 1 }}
-                                    exit={{ opacity: 0, scale: 0.98 }}
-                                    transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-                                    className="w-full h-full object-cover"
-                                />
+                                {item.type === "video" ? (
+    <motion.iframe
+        key={item.id}
+        src={item.src}
+        initial={{ opacity: 0, scale: 1.05 }}
+        animate={{ opacity: 1, scale: 1 }}
+        exit={{ opacity: 0, scale: 0.98 }}
+        transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+        className="w-full h-full"
+        allow="autoplay"
+        title={item.title}
+    />
+                                ) : (
+                                    <motion.img
+                                        key={item.id}
+                                        src={item.src}
+                                        alt={item.title}
+                                        initial={{ opacity: 0, scale: 1.05 }}
+                                        animate={{ opacity: 1, scale: 1 }}
+                                        exit={{ opacity: 0, scale: 0.98 }}
+                                        transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+                                        className="w-full h-full object-cover"
+                                    />
+                                )}
                             </AnimatePresence>
 
                             <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-background/90 to-transparent" />
@@ -405,12 +615,12 @@ const LightboxModal = ({ image, onClose, images, onNavigate }: { image: GalleryI
                                 className="absolute bottom-0 left-0 right-0 p-6 md:p-8"
                             >
                                 <span className="text-primary text-sm tracking-widest font-medium">
-                                    {image.year}
+                                    {item.year}
                                 </span>
                                 <h2 className="font-display text-2xl md:text-4xl text-foreground mt-2 font-bold">
-                                    {image.title}
+                                    {item.title}
                                 </h2>
-                                <p className="text-muted-foreground mt-1">{image.location}</p>
+                                <p className="text-muted-foreground mt-1">{item.location}</p>
                             </motion.div>
                         </div>
 
@@ -431,13 +641,13 @@ const LightboxModal = ({ image, onClose, images, onNavigate }: { image: GalleryI
 
                             <motion.button
                                 initial={{ opacity: 0, x: 20 }}
-                                animate={{ opacity: currentIndex < images.length - 1 ? 1 : 0.3, x: 0 }}
+                                animate={{ opacity: currentIndex < items.length - 1 ? 1 : 0.3, x: 0 }}
                                 transition={{ delay: 0.2 }}
                                 onClick={(e) => {
                                     e.stopPropagation();
                                     goToNext();
                                 }}
-                                disabled={currentIndex === images.length - 1}
+                                disabled={currentIndex === items.length - 1}
                                 className="pointer-events-auto p-3 rounded-full bg-card/80 backdrop-blur-sm text-foreground hover:bg-card border border-border/30 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
                             >
                                 <ChevronRight size={24} />
@@ -450,7 +660,7 @@ const LightboxModal = ({ image, onClose, images, onNavigate }: { image: GalleryI
                             transition={{ delay: 0.4 }}
                             className="text-center mt-4 text-muted-foreground text-sm"
                         >
-                            {currentIndex + 1} / {images.length}
+                            {currentIndex + 1} / {items.length}
                         </motion.div>
                     </motion.div>
                 </motion.div>
@@ -459,23 +669,20 @@ const LightboxModal = ({ image, onClose, images, onNavigate }: { image: GalleryI
     );
 };
 
-// Main Gallery Component
 const Gallery = () => {
     const [activeCategory, setActiveCategory] = useState<Category>("all");
-    const [selectedImage, setSelectedImage] = useState<GalleryImage | null>(null);
+    const [selectedItem, setSelectedItem] = useState<GalleryItem | null>(null);
 
-    const filteredImages = useMemo(() => {
-        if (activeCategory === "all") return galleryImages;
-        return galleryImages.filter((img) => img.category === activeCategory);
+    const filteredItems = useMemo(() => {
+        if (activeCategory === "all") return galleryItems;
+        return galleryItems.filter((item) => item.category === activeCategory);
     }, [activeCategory]);
 
     return (
         <div className="min-h-screen bg-background overflow-hidden">
             <Navigation />
 
-            {/* Hero Section with Animated Background */}
             <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden pt-24">
-                {/* Animated gradient orbs */}
                 <div className="absolute inset-0 overflow-hidden">
                     <motion.div
                         className="absolute -top-1/4 -right-1/4 w-[800px] h-[800px] rounded-full opacity-20"
@@ -533,7 +740,6 @@ const Gallery = () => {
                     </motion.p>
                 </div>
 
-                {/* Scroll indicator */}
                 <motion.div
                     className="absolute bottom-8 left-1/2 -translate-x-1/2"
                     animate={{ y: [0, 10, 0] }}
@@ -549,7 +755,6 @@ const Gallery = () => {
                 </motion.div>
             </section>
 
-            {/* Gallery Section */}
             <section className="py-32 relative">
                 <div className="container mx-auto px-6 lg:px-8">
                     <CategoryFilter
@@ -562,19 +767,19 @@ const Gallery = () => {
                         className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6 auto-rows-[200px] md:auto-rows-[250px]"
                     >
                         <AnimatePresence mode="popLayout">
-                            {filteredImages.map((image, index) => (
+                            {filteredItems.map((item, index) => (
                                 <GalleryCard
-                                    key={image.id}
-                                    image={image}
+                                    key={item.id}
+                                    item={item}
                                     index={index}
-                                    onClick={() => setSelectedImage(image)}
+                                    onClick={() => setSelectedItem(item)}
                                 />
                             ))}
                         </AnimatePresence>
                     </motion.div>
 
                     <AnimatePresence>
-                        {filteredImages.length === 0 && (
+                        {filteredItems.length === 0 && (
                             <motion.div
                                 initial={{ opacity: 0 }}
                                 animate={{ opacity: 1 }}
@@ -582,7 +787,7 @@ const Gallery = () => {
                                 className="text-center py-20"
                             >
                                 <p className="text-muted-foreground text-lg">
-                                    No images found in this category.
+                                    No items found in this category.
                                 </p>
                             </motion.div>
                         )}
@@ -590,10 +795,10 @@ const Gallery = () => {
                 </div>
 
                 <LightboxModal
-                    image={selectedImage}
-                    onClose={() => setSelectedImage(null)}
-                    images={filteredImages}
-                    onNavigate={setSelectedImage}
+                    item={selectedItem}
+                    onClose={() => setSelectedItem(null)}
+                    items={filteredItems}
+                    onNavigate={setSelectedItem}
                 />
             </section>
 

@@ -33,6 +33,69 @@ const testimonials = [
   },
 ];
 
+const SplitText = ({ text }) => {
+  const [activeIndex, setActiveIndex] = useState();
+  const timer = useRef();
+  
+  const letterClassName = "inline h-1/2 select-none overflow-y-hidden leading-none transition-all duration-300 ease-out whitespace-pre";
+  
+  return (
+    <div className="relative text-xl md:text-2xl font-medium leading-relaxed">
+      <div className="invisible leading-relaxed whitespace-normal break-words">{text}</div>
+      <div className="absolute top-0 left-0 right-0 flex flex-wrap h-auto">
+        {text.split("").map((letter, index) => (
+          <div
+            onMouseEnter={() => {
+              if (timer.current) {
+                clearTimeout(timer.current);
+              }
+              setActiveIndex(index);
+            }}
+            onMouseLeave={() => {
+              timer.current = setTimeout(() => {
+                setActiveIndex(undefined);
+              }, 500);
+            }}
+            key={index}
+            className="relative inline-flex h-auto flex-col leading-relaxed"
+          >
+            <span
+              className={`${letterClassName} ${
+                index === activeIndex
+                  ? '-translate-y-5'
+                  : activeIndex !== undefined &&
+                    (index === activeIndex - 1 || index === activeIndex + 1)
+                  ? '-translate-y-3'
+                  : activeIndex !== undefined &&
+                    (index === activeIndex - 2 || index === activeIndex + 2)
+                  ? '-translate-y-1'
+                  : ''
+              }`}
+            >
+              {letter}
+            </span>
+            <span
+              className={`${letterClassName} ${
+                index === activeIndex
+                  ? 'translate-y-5'
+                  : activeIndex !== undefined &&
+                    (index === activeIndex - 1 || index === activeIndex + 1)
+                  ? 'translate-y-3'
+                  : activeIndex !== undefined &&
+                    (index === activeIndex - 2 || index === activeIndex + 2)
+                  ? 'translate-y-1'
+                  : ''
+              }`}
+            >
+              <span className="absolute -translate-y-1/2 leading-relaxed">{letter}</span>
+            </span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
 export const TestimonialsSection = () => {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: '-100px' });
@@ -89,7 +152,7 @@ export const TestimonialsSection = () => {
                   className={`${index === activeIndex ? 'block' : 'hidden'}`}
                 >
                   <p className="text-xl md:text-2xl text-foreground font-medium leading-relaxed mb-8">
-                    "{testimonial.quote}"
+                    "<SplitText text={testimonial.quote} />"
                   </p>
                   
                   <div className="flex items-center gap-4">
@@ -111,7 +174,6 @@ export const TestimonialsSection = () => {
               ))}
             </div>
 
-            {/* Indicators */}
             <div className="flex justify-center gap-2 mt-8">
               {testimonials.map((_, index) => (
                 <button
