@@ -3,6 +3,7 @@ import { Menu, X } from 'lucide-react';
 import Logo from "../assets/Logo.jpeg" // Adjust the import path as needed
 
 const navLinks = [
+  { name: 'Home', path: '/' },
   { name: 'About', path: '/about' },
   { name: 'Team', path: '/team' },
   { name: 'Events', path: '/events' },
@@ -14,7 +15,7 @@ export default function Navigation() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isVisible, setIsVisible] = useState(true);
-  const [activePath, setActivePath] = useState('#about');
+  const [activePath, setActivePath] = useState('/');
 
   const navRef = useRef(null);
   const bgRef = useRef(null);
@@ -22,6 +23,9 @@ export default function Navigation() {
   const ticking = useRef(false);
 
   useEffect(() => {
+    // Set active path based on current location
+    setActivePath(window.location.pathname);
+
     // Initial entrance animation using vanilla JS for smooth performance
     const nav = navRef.current;
     nav.style.transform = 'translateY(-100px)';
@@ -56,22 +60,24 @@ export default function Navigation() {
             }
           }
 
-          // Handle navbar contraction with debouncing
-          if (scrollDifference > 5 && currentScrollY > 100 && isVisible) {
-            setIsVisible(false);
-            if (navRef.current) {
-              navRef.current.style.transition = 'all 0.5s cubic-bezier(0.16, 1, 0.3, 1)';
-              navRef.current.style.width = '60%';
-              navRef.current.style.borderRadius = '9999px';
-              navRef.current.style.marginTop = '1rem';
-            }
-          } else if (scrollDifference < -5 && !isVisible) {
-            setIsVisible(true);
-            if (navRef.current) {
-              navRef.current.style.transition = 'all 0.5s cubic-bezier(0.16, 1, 0.3, 1)';
-              navRef.current.style.width = '100%';
-              navRef.current.style.borderRadius = '0px';
-              navRef.current.style.marginTop = '0rem';
+          // Handle navbar contraction with debouncing (only on desktop)
+          if (window.innerWidth >= 768) {
+            if (scrollDifference > 5 && currentScrollY > 100 && isVisible) {
+              setIsVisible(false);
+              if (navRef.current) {
+                navRef.current.style.transition = 'all 0.5s cubic-bezier(0.16, 1, 0.3, 1)';
+                navRef.current.style.width = '60%';
+                navRef.current.style.borderRadius = '9999px';
+                navRef.current.style.marginTop = '1rem';
+              }
+            } else if (scrollDifference < -5 && !isVisible) {
+              setIsVisible(true);
+              if (navRef.current) {
+                navRef.current.style.transition = 'all 0.5s cubic-bezier(0.16, 1, 0.3, 1)';
+                navRef.current.style.width = '100%';
+                navRef.current.style.borderRadius = '0px';
+                navRef.current.style.marginTop = '0rem';
+              }
             }
           }
 
@@ -103,28 +109,27 @@ export default function Navigation() {
 
         {/* Content layer */}
         <div className="relative">
-          <div className="container mx-auto px-6 lg:px-8">
-            <div className="flex items-center justify-between h-20">
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex items-center justify-between h-16 sm:h-20">
               {/* Logo */}
-              <a href="#" className="flex items-center gap-2 group">
+              <a href="/" className="flex items-center gap-2 group">
                 <img
                   src={Logo}
                   alt="PixelCraft Logo"
-                  className="w-12 h-12 rounded-lg "
+                  className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg"
                 />
-                <span className="font-display font-bold text-xl text-foreground group-hover:bg-gradient-to-r group-hover:from-primary group-hover:to-secondary group-hover:bg-clip-text group-hover:text-transparent transition-all duration-300">
+                <span className="font-display font-bold text-lg sm:text-xl text-foreground group-hover:bg-gradient-to-r group-hover:from-primary group-hover:to-secondary group-hover:bg-clip-text group-hover:text-transparent transition-all duration-300">
                   PixelCraft
                 </span>
               </a>
 
               {/* Desktop Navigation */}
-              <div className="hidden md:flex items-center gap-8">
+              <div className="hidden md:flex items-center gap-6 lg:gap-8">
                 {navLinks.map((link) => (
                   <a
                     key={link.name}
                     href={link.path}
                     onClick={() => {
-
                       setActivePath(link.path);
                     }}
                     className="relative text-sm font-medium text-muted-foreground hover:text-foreground transition-colors duration-300 group"
@@ -136,8 +141,6 @@ export default function Navigation() {
                   </a>
                 ))}
               </div>
-
-
 
               {/* Mobile Menu Button */}
               <button
@@ -155,28 +158,26 @@ export default function Navigation() {
       {/* Mobile Menu */}
       {isMobileMenuOpen && (
         <div
-          className="fixed inset-x-0 top-20 z-40 bg-background/95 backdrop-blur-xl border-b border-border md:hidden overflow-hidden animate-slide-up"
+          className="fixed inset-x-0 top-16 sm:top-20 z-40 bg-background/95 backdrop-blur-xl border-b border-border md:hidden overflow-hidden animate-slide-up"
         >
-          <div className="container mx-auto px-6 py-6 flex flex-col gap-4">
+          <div className="container mx-auto px-4 sm:px-6 py-6 flex flex-col gap-4">
             {navLinks.map((link, index) => (
               <a
                 key={link.name}
                 href={link.path}
                 onClick={() => {
-
                   setActivePath(link.path);
                   setIsMobileMenuOpen(false);
                 }}
                 className={`text-lg font-medium py-2 transition-colors animate-fade-in ${activePath === link.path
-                  ? 'bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent'
-                  : 'text-muted-foreground hover:text-foreground'
+                    ? 'bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent'
+                    : 'text-muted-foreground hover:text-foreground'
                   }`}
                 style={{ animationDelay: `${index * 100}ms` }}
               >
                 {link.name}
               </a>
             ))}
-
           </div>
         </div>
       )}

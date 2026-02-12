@@ -3,32 +3,21 @@ import { useRef, useState } from 'react';
 import { Calendar, ArrowRight, X } from 'lucide-react';
 
 const upcomingEvent = {
-  title: 'Animation Workshop: Character Design',
-  date: 'January 15, 2024',
+  title: 'Animation Workshop: The Art of Motion Design',
+  date: 'February 5-6, 2026 ',
   time: '4:00 PM - 6:00 PM',
   location: 'Design Studio, Room 302',
-  poster: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=500&fit=crop',
+  poster: './Workshop.jpg',
 };
 
 const pastEvents = [
   { 
     id: 1, 
-    image: 'https://images.unsplash.com/photo-1492619375914-88005aa9e8fb?w=800&h=600&fit=crop',
-    title: 'Motion Graphics Workshop',
-    date: 'December 10, 2024',
+    image: './Inauguration.jpg',
+    title: 'Inauguration Day',
+    date: 'September 03, 2025',
   },
-  { 
-    id: 2, 
-    image: 'https://images.unsplash.com/photo-1534447677768-be436bb09401?w=800&h=600&fit=crop',
-    title: '3D Animation Bootcamp',
-    date: 'November 22, 2024',
-  },
-  { 
-    id: 3, 
-    image: 'https://images.unsplash.com/photo-1561736778-92e52a7769ef?w=800&h=600&fit=crop',
-    title: 'VFX Masterclass',
-    date: 'November 5, 2024',
-  },
+  
 ];
 
 // Modal Component

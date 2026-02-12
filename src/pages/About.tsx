@@ -95,7 +95,7 @@ const About = () => {
   return (
     <div className="min-h-screen bg-background overflow-hidden">
       <Navigation />
-      
+
       {/* Hero Section with Animated Background */}
       <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden pt-24">
         {/* Animated gradient orbs */}
@@ -126,16 +126,9 @@ const About = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
           >
-            <Link 
-              to="/" 
-              className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors mb-8"
-            >
-              <ArrowLeft className="w-4 h-4" />
-              Back to Home
-            </Link>
           </motion.div>
 
-          <motion.h1 
+          <motion.h1
             className="font-display text-5xl md:text-7xl lg:text-8xl font-bold mb-6"
             initial={{ opacity: 0, y: 50 }}
             animate={{ opacity: 1, y: 0 }}
@@ -145,8 +138,8 @@ const About = () => {
             <br />
             <span className="text-gradient">PixelCraft</span>
           </motion.h1>
-          
-          <motion.p 
+
+          <motion.p
             className="text-xl md:text-2xl text-muted-foreground max-w-3xl"
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
@@ -157,13 +150,13 @@ const About = () => {
         </div>
 
         {/* Scroll indicator */}
-        <motion.div 
+        <motion.div
           className="absolute bottom-8 left-1/2 -translate-x-1/2"
           animate={{ y: [0, 10, 0] }}
           transition={{ duration: 2, repeat: Infinity }}
         >
           <div className="w-6 h-10 rounded-full border-2 border-muted-foreground/50 flex items-start justify-center p-2">
-            <motion.div 
+            <motion.div
               className="w-1.5 h-1.5 rounded-full bg-primary"
               animate={{ y: [0, 12, 0] }}
               transition={{ duration: 2, repeat: Infinity }}
@@ -184,7 +177,7 @@ const About = () => {
               className="group"
             >
               <div className="glass rounded-3xl p-10 lg:p-12 border border-border/30 hover:border-primary/50 transition-all duration-500 h-full relative overflow-hidden">
-                <motion.div 
+                <motion.div
                   className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
                   style={{ background: 'radial-gradient(circle at 30% 30%, hsl(25 100% 55% / 0.1) 0%, transparent 50%)' }}
                 />
@@ -193,7 +186,7 @@ const About = () => {
                     <Target className="w-8 h-8 text-primary-foreground" />
                   </div>
                   <h2 className="font-display text-3xl font-bold mb-6 text-foreground">Our Mission</h2>
-                  
+
                   <div className="hidden md:block">
                     <SwapText
                       initialText="To democratize animation education"
@@ -203,10 +196,10 @@ const About = () => {
                       finalTextClassName="text-lg text-muted-foreground leading-relaxed"
                     />
                   </div>
-                  
+
                   <p className="md:hidden text-lg text-muted-foreground leading-relaxed">
-                    To democratize animation education by providing students with hands-on learning opportunities, 
-                    industry mentorship, and a supportive community where creativity flourishes and every frame 
+                    To democratize animation education by providing students with hands-on learning opportunities,
+                    industry mentorship, and a supportive community where creativity flourishes and every frame
                     tells a story worth sharing.
                   </p>
                 </div>
@@ -221,7 +214,7 @@ const About = () => {
               className="group"
             >
               <div className="glass rounded-3xl p-10 lg:p-12 border border-border/30 hover:border-secondary/50 transition-all duration-500 h-full relative overflow-hidden">
-                <motion.div 
+                <motion.div
                   className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
                   style={{ background: 'radial-gradient(circle at 70% 70%, hsl(280 100% 65% / 0.1) 0%, transparent 50%)' }}
                 />
@@ -230,7 +223,7 @@ const About = () => {
                     <Eye className="w-8 h-8 text-secondary-foreground" />
                   </div>
                   <h2 className="font-display text-3xl font-bold mb-6 text-foreground">Our Vision</h2>
-                  
+
                   <div className="hidden md:block">
                     <SwapText
                       initialText="To become the launchpad for the next generation"
@@ -240,10 +233,10 @@ const About = () => {
                       finalTextClassName="text-lg text-muted-foreground leading-relaxed"
                     />
                   </div>
-                  
+
                   <p className="md:hidden text-lg text-muted-foreground leading-relaxed">
-                    To become the launchpad for the next generation of animators, motion designers, and 
-                    visual storytellers — building a creative ecosystem where students collaborate, 
+                    To become the launchpad for the next generation of animators, motion designers, and
+                    visual storytellers — building a creative ecosystem where students collaborate,
                     innovate, and inspire the world through motion.
                   </p>
                 </div>
@@ -285,9 +278,8 @@ const About = () => {
                   whileInView={{ opacity: 1, x: 0 }}
                   transition={{ duration: 0.6, delay: 0.2 }}
                   viewport={{ once: true }}
-                  className={`flex items-center gap-8 ${
-                    index % 2 === 0 ? "md:flex-row" : "md:flex-row-reverse"
-                  } flex-col md:flex-row`}
+                  className={`flex items-center gap-8 ${index % 2 === 0 ? "md:flex-row" : "md:flex-row-reverse"
+                    } flex-col md:flex-row`}
                 >
                   <div className={`flex-1 ${index % 2 === 0 ? "md:text-right" : "md:text-left"} text-center`}>
                     <h3 className="font-[family-name:var(--font-space-grotesk)] text-2xl font-bold text-foreground mb-2">
@@ -337,7 +329,7 @@ const About = () => {
             {differentiators.map((item, index) => {
               const tiltLeft = index % 2 === 0;
               const factor = tiltLeft ? 1 : -1;
-              
+
               return (
                 <motion.div
                   key={item.title}
@@ -356,7 +348,7 @@ const About = () => {
                           transform: `perspective(400px) rotateY(${factor * 20}deg) scale(0.85) translateX(${-factor * 20}%)`,
                         }}
                       >
-                        <div className="p-8 h-full flex flex-col">
+                        <div className="p-8 h-full flex flex-col opacity-0 group-hover:opacity-100 transition-opacity duration-500">
                           <div className={`w-14 h-14 rounded-lg bg-gradient-to-br ${item.gradient} flex items-center justify-center mb-6`}>
                             <item.icon className="w-7 h-7 text-foreground" />
                           </div>
@@ -365,12 +357,11 @@ const About = () => {
                         </div>
                         <div className="absolute inset-0 h-full w-full bg-muted/10 transition-all group-hover:bg-transparent" />
                       </div>
-                      
+
                       {/* Cover with icon */}
                       <div
-                        className={`pointer-events-none absolute inset-0 h-full w-full rounded-xl border-4 border-border/50 bg-gradient-to-br ${item.gradient} transition-all delay-75 duration-500 ease-out group-hover:!transform-none group-hover:opacity-0 ${
-                          tiltLeft ? 'group-hover:left-[200%]' : 'group-hover:-left-[200%]'
-                        }`}
+                        className={`pointer-events-none absolute inset-0 h-full w-full rounded-xl border-4 border-border/50 bg-gradient-to-br ${item.gradient} transition-all delay-75 duration-500 ease-out group-hover:!transform-none group-hover:opacity-0 ${tiltLeft ? 'group-hover:left-[200%]' : 'group-hover:-left-[200%]'
+                          }`}
                         style={{
                           transform: `perspective(400px) rotateY(${factor * 20}deg)`,
                         }}
@@ -393,7 +384,7 @@ const About = () => {
             transition={{ duration: 0.6, delay: 0.4 }}
             className="text-center mt-16"
           >
-           
+
           </motion.div>
         </div>
       </section>

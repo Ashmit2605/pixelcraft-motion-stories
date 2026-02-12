@@ -6,7 +6,7 @@ import { ArrowLeft, X, ChevronLeft, ChevronRight, Play } from 'lucide-react';
 import { useState, useMemo, useEffect, useCallback, useRef } from "react";
 
 // Types
-type Category = "all" | "events" | "workshops" | "behind-the-scenes" | "awards";
+type Category = "all" | "inauguration" | "workshop";
 type ImageEffect = "stack" | "disclose" | "skew" | "normal";
 type MediaType = "image" | "video";
 
@@ -37,14 +37,15 @@ const assignEffects = (items: Omit<GalleryItem, "effect" | "angle">[]): GalleryI
 };
 
 const baseGalleryItems: Omit<GalleryItem, "effect" | "angle">[] = [
+    // Inauguration Event Photos
     {
         id: "1",
         src: "https://drive.google.com/thumbnail?id=1a8ImP8OfEj64lgbVUJMr2lew8BI0Kprv&sz=w1000",
         thumbnail: "https://drive.google.com/thumbnail?id=1a8ImP8OfEj64lgbVUJMr2lew8BI0Kprv&sz=w400",
-        title: "Studio Session",
+        title: "Inauguration Ceremony",
         location: "New York City",
         year: "2024",
-        category: "events",
+        category: "inauguration",
         size: "large",
         type: "image",
     },
@@ -52,32 +53,32 @@ const baseGalleryItems: Omit<GalleryItem, "effect" | "angle">[] = [
         id: "2",
         src: "https://drive.google.com/file/d/15ib80NfBGELZnDlW3FEbBrzV-NcXjfSM/preview",
         thumbnail: "https://drive.google.com/thumbnail?id=15ib80NfBGELZnDlW3FEbBrzV-NcXjfSM&sz=w400",
-        title: "Behind the Lens",
+        title: "Grand Opening",
         location: "Los Angeles",
         year: "2024",
-        category: "workshops",
+        category: "inauguration",
         size: "large",
         type: "video",
     },
     {
         id: "3",
-       src: "https://drive.google.com/thumbnail?id=12foUKiunbYCL-1V1Q49TDzdP2moZOL24&sz=w1000",
+        src: "https://drive.google.com/thumbnail?id=12foUKiunbYCL-1V1Q49TDzdP2moZOL24&sz=w1000",
         thumbnail: "https://drive.google.com/thumbnail?id=12foUKiunbYCL-1V1Q49TDzdP2moZOL24&sz=w400",
-        title: "Golden Frame Awards",
+        title: "Ribbon Cutting Ceremony",
         location: "London",
         year: "2023",
-        category: "awards",
+        category: "inauguration",
         size: "wide",
         type: "image",
     },
     {
         id: "4",
-       src: "https://drive.google.com/thumbnail?id=1mJ8gEK_0rEJ9AywLGcDzQisDr-XCUoOp&sz=w1000",
+        src: "https://drive.google.com/thumbnail?id=1mJ8gEK_0rEJ9AywLGcDzQisDr-XCUoOp&sz=w1000",
         thumbnail: "https://drive.google.com/thumbnail?id=1mJ8gEK_0rEJ9AywLGcDzQisDr-XCUoOp&sz=w400",
-        title: "Fashion Week Prep",
+        title: "Official Launch Event",
         location: "Paris",
         year: "2024",
-        category: "behind-the-scenes",
+        category: "inauguration",
         size: "medium",
         type: "image",
     },
@@ -85,10 +86,10 @@ const baseGalleryItems: Omit<GalleryItem, "effect" | "angle">[] = [
         id: "5",
         src: "https://drive.google.com/file/d/1qR84cycetZ1l0aYTnghvbbkqVPVJp5j1/preview",
         thumbnail: "https://drive.google.com/thumbnail?id=1qR84cycetZ1l0aYTnghvbbkqVPVJp5j1&sz=w400",
-        title: "Creative Process",
+        title: "Inauguration Highlights",
         location: "Santorini",
         year: "2023",
-        category: "events",
+        category: "inauguration",
         size: "wide",
         type: "video",
     },
@@ -96,10 +97,10 @@ const baseGalleryItems: Omit<GalleryItem, "effect" | "angle">[] = [
         id: "6",
         src: "https://drive.google.com/thumbnail?id=1NaTqP6xEqY5EeQb_cBTzxDVqiwekgjas&sz=w1000",
         thumbnail: "https://drive.google.com/thumbnail?id=1NaTqP6xEqY5EeQb_cBTzxDVqiwekgjas&sz=w400",
-        title: "Portrait Series",
+        title: "Opening Celebration",
         location: "Milan",
         year: "2024",
-        category: "events",
+        category: "inauguration",
         size: "medium",
         type: "image",
     },
@@ -107,10 +108,10 @@ const baseGalleryItems: Omit<GalleryItem, "effect" | "angle">[] = [
         id: "7",
         src: "https://drive.google.com/file/d/15ib80NfBGELZnDlW3FEbBrzV-NcXjfSM/preview",
         thumbnail: "https://drive.google.com/thumbnail?id=15ib80NfBGELZnDlW3FEbBrzV-NcXjfSM&sz=w400",
-        title: "Product Photography",
+        title: "Inaugural Address",
         location: "Tokyo",
         year: "2023",
-        category: "workshops",
+        category: "inauguration",
         size: "large",
         type: "video",
     },
@@ -118,13 +119,15 @@ const baseGalleryItems: Omit<GalleryItem, "effect" | "angle">[] = [
         id: "8",
         src: "https://drive.google.com/thumbnail?id=1WOGxPe1aEMTYFm9Bk2xUxuBamKU2eOSp&sz=w1000",
         thumbnail: "https://drive.google.com/thumbnail?id=1WOGxPe1aEMTYFm9Bk2xUxuBamKU2eOSp&sz=w400",
-        title: "Film Production",
+        title: "Inauguration Day",
         location: "Vancouver",
         year: "2024",
-        category: "behind-the-scenes",
+        category: "inauguration",
         size: "large",
         type: "image",
     },
+
+    // Workshop Photos
     {
         id: "9",
         src: "https://drive.google.com/thumbnail?id=1yeIpUcHe4Y5xU1RES7JkuAlt5UhZMaTT&sz=w1000",
@@ -132,7 +135,7 @@ const baseGalleryItems: Omit<GalleryItem, "effect" | "angle">[] = [
         title: "Creative Workshop",
         location: "Berlin",
         year: "2024",
-        category: "workshops",
+        category: "workshop",
         size: "small",
         type: "image",
     },
@@ -140,20 +143,20 @@ const baseGalleryItems: Omit<GalleryItem, "effect" | "angle">[] = [
         id: "10",
         src: "https://drive.google.com/file/d/18KZMrqq0h-QILXMJ8bfQQTkKLE-hT2qG/preview",
         thumbnail: "https://drive.google.com/thumbnail?id=18KZMrqq0h-QILXMJ8bfQQTkKLE-hT2qG&sz=w400",
-        title: "Motion Showcase",
+        title: "Skills Development Session",
         location: "Amsterdam",
         year: "2023",
-        category: "events",
+        category: "workshop",
         size: "wide",
         type: "video",
     },
     {
         id: "11",
         src: "https://images.unsplash.com/photo-1524863479829-916d8e77f114?w=600&h=900&fit=crop",
-        title: "VFX Breakdown",
+        title: "Technical Workshop",
         location: "Seoul",
         year: "2024",
-        category: "behind-the-scenes",
+        category: "workshop",
         size: "tall",
         type: "image",
     },
@@ -161,10 +164,10 @@ const baseGalleryItems: Omit<GalleryItem, "effect" | "angle">[] = [
         id: "12",
         src: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
         thumbnail: "https://images.unsplash.com/photo-1618005198919-d3d4b5a92ead?w=600&h=600&fit=crop",
-        title: "Abstract Motion Art",
+        title: "Design Thinking Workshop",
         location: "Toronto",
         year: "2023",
-        category: "workshops",
+        category: "workshop",
         size: "large",
         type: "video",
     },
@@ -174,7 +177,7 @@ const baseGalleryItems: Omit<GalleryItem, "effect" | "angle">[] = [
         title: "3D Rendering Workshop",
         location: "Singapore",
         year: "2024",
-        category: "workshops",
+        category: "workshop",
         size: "medium",
         type: "image",
     },
@@ -182,20 +185,20 @@ const baseGalleryItems: Omit<GalleryItem, "effect" | "angle">[] = [
         id: "14",
         src: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4",
         thumbnail: "https://images.unsplash.com/photo-1579783902614-a3fb3927b6a5?w=900&h=500&fit=crop",
-        title: "Digital Animation",
+        title: "Animation Workshop",
         location: "Dubai",
         year: "2023",
-        category: "awards",
+        category: "workshop",
         size: "wide",
         type: "video",
     },
     {
         id: "15",
         src: "https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=600&h=900&fit=crop",
-        title: "Set Design",
+        title: "Photography Masterclass",
         location: "Mumbai",
         year: "2024",
-        category: "behind-the-scenes",
+        category: "workshop",
         size: "tall",
         type: "image",
     },
@@ -205,27 +208,27 @@ const baseGalleryItems: Omit<GalleryItem, "effect" | "angle">[] = [
         title: "Color Grading Class",
         location: "Barcelona",
         year: "2023",
-        category: "workshops",
+        category: "workshop",
         size: "small",
         type: "image",
     },
     {
         id: "17",
         src: "https://images.unsplash.com/photo-1563089145-599997674d42?w=800&h=1000&fit=crop",
-        title: "Annual Conference",
+        title: "Lighting Techniques Workshop",
         location: "San Francisco",
         year: "2024",
-        category: "events",
+        category: "workshop",
         size: "large",
         type: "image",
     },
     {
         id: "18",
         src: "https://images.unsplash.com/photo-1505373877841-8d25f7d46678?w=600&h=750&fit=crop",
-        title: "Equipment Setup",
+        title: "Audio Production Workshop",
         location: "Sydney",
         year: "2023",
-        category: "behind-the-scenes",
+        category: "workshop",
         size: "medium",
         type: "image",
     },
@@ -233,11 +236,9 @@ const baseGalleryItems: Omit<GalleryItem, "effect" | "angle">[] = [
 const galleryItems = assignEffects(baseGalleryItems);
 
 const categories: { id: Category; label: string }[] = [
-    { id: "all", label: "All Work" },
-    { id: "events", label: "Events" },
-    { id: "workshops", label: "Workshops" },
-    { id: "behind-the-scenes", label: "Behind the Scenes" },
-    { id: "awards", label: "Awards" },
+    { id: "all", label: "All" },
+    { id: "inauguration", label: "Inauguration" },
+    { id: "workshop", label: "Workshop" },
 ];
 
 const CategoryFilter = ({ activeCategory, onCategoryChange }: { activeCategory: Category; onCategoryChange: (cat: Category) => void }) => {
@@ -254,8 +255,8 @@ const CategoryFilter = ({ activeCategory, onCategoryChange }: { activeCategory: 
                     key={category.id}
                     onClick={() => onCategoryChange(category.id)}
                     className={`px-6 py-3 rounded-full text-sm tracking-wider transition-all duration-500 font-medium ${activeCategory === category.id
-                            ? "bg-primary text-primary-foreground shadow-lg shadow-primary/50"
-                            : "glass border border-border/30 text-muted-foreground hover:border-primary/50 hover:text-foreground"
+                        ? "bg-primary text-primary-foreground shadow-lg shadow-primary/50"
+                        : "glass border border-border/30 text-muted-foreground hover:border-primary/50 hover:text-foreground"
                         }`}
                     initial={{ opacity: 0, y: 10 }}
                     whileInView={{ opacity: 1, y: 0 }}
@@ -280,36 +281,36 @@ const GalleryCard = ({ item, index, onClick }: { item: GalleryItem; index: numbe
         tall: "col-span-1 row-span-2",
         wide: "col-span-2 row-span-1",
     };
-const MediaContent = ({ showOverlay = true }: { showOverlay?: boolean }) => (
-    <>
-        {item.type === "video" ? (
-            <>
-                {item.src.includes('drive.google.com') ? (
-                    <iframe
-                        src={item.src}
-                        className="w-full h-full"
-                        allow="autoplay"
-                        title={item.title}
-                    />
-                ) : (
-                    <video
-                        src={item.src}
-                        className="w-full h-full object-cover"
-                        autoPlay
-                        muted
-                        loop
-                        playsInline
-                        preload="auto"
-                    />
-                )}
-        {showOverlay && (
-            <div className="absolute inset-0 flex items-center justify-center z-10 pointer-events-none">
-                <div className="bg-primary/20 backdrop-blur-sm flex size-16 items-center justify-center rounded-full border-2 border-white/80 transition-all duration-300 group-hover:scale-110">
-                    <Play className="size-6 fill-white text-white" />
-                </div>
-            </div>
-        )}
-    </>
+    const MediaContent = ({ showOverlay = true }: { showOverlay?: boolean }) => (
+        <>
+            {item.type === "video" ? (
+                <>
+                    {item.src.includes('drive.google.com') ? (
+                        <iframe
+                            src={item.src}
+                            className="w-full h-full"
+                            allow="autoplay"
+                            title={item.title}
+                        />
+                    ) : (
+                        <video
+                            src={item.src}
+                            className="w-full h-full object-cover"
+                            autoPlay
+                            muted
+                            loop
+                            playsInline
+                            preload="auto"
+                        />
+                    )}
+                    {showOverlay && (
+                        <div className="absolute inset-0 flex items-center justify-center z-10 pointer-events-none">
+                            <div className="bg-primary/20 backdrop-blur-sm flex size-16 items-center justify-center rounded-full border-2 border-white/80 transition-all duration-300 group-hover:scale-110">
+                                <Play className="size-6 fill-white text-white" />
+                            </div>
+                        </div>
+                    )}
+                </>
             ) : (
                 <img
                     src={item.src}
@@ -365,7 +366,7 @@ const MediaContent = ({ showOverlay = true }: { showOverlay?: boolean }) => (
     const DiscloseEffect = () => {
         const vertical = Math.random() > 0.5;
         return (
-            <motion.div 
+            <motion.div
                 className="relative w-full h-full overflow-hidden rounded-xl group"
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
@@ -389,10 +390,10 @@ const MediaContent = ({ showOverlay = true }: { showOverlay?: boolean }) => (
                         />
                     </>
                 )}
-                
+
                 <div className="absolute inset-0 bg-gradient-to-t from-background/70 via-transparent to-transparent" />
-                
-                <motion.div 
+
+                <motion.div
                     className="absolute inset-0 flex flex-col justify-end p-4 md:p-6"
                     initial={{ opacity: 0, y: 20 }}
                     whileInView={{ opacity: 1, y: 0 }}
@@ -426,17 +427,17 @@ const MediaContent = ({ showOverlay = true }: { showOverlay?: boolean }) => (
             <motion.div className="relative w-full h-full">
                 <motion.div
                     className="w-full h-full"
-                    whileHover={{ 
+                    whileHover={{
                         scale: 1.15,
                         transition: { duration: 0.5, ease: [0.16, 1, 0.3, 1] }
                     }}
                 >
                     <MediaContent />
                 </motion.div>
-                
+
                 <div className="absolute inset-0 bg-gradient-to-t from-background/70 via-transparent to-transparent" />
-                
-                <motion.div 
+
+                <motion.div
                     className="absolute inset-0 flex flex-col justify-end p-4 md:p-6"
                     initial={{ opacity: 0, y: 20 }}
                     whileInView={{ opacity: 1, y: 0 }}
@@ -469,10 +470,10 @@ const MediaContent = ({ showOverlay = true }: { showOverlay?: boolean }) => (
             >
                 <MediaContent />
             </motion.div>
-            
+
             <div className="absolute inset-0 bg-gradient-to-t from-background/70 via-transparent to-transparent" />
-            
-            <motion.div 
+
+            <motion.div
                 className="absolute inset-0 flex flex-col justify-end p-4 md:p-6"
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
@@ -581,17 +582,17 @@ const LightboxModal = ({ item, onClose, items, onNavigate }: { item: GalleryItem
                         <div className="relative aspect-[16/10] bg-card rounded-2xl overflow-hidden border border-border/30">
                             <AnimatePresence mode="wait">
                                 {item.type === "video" ? (
-    <motion.iframe
-        key={item.id}
-        src={item.src}
-        initial={{ opacity: 0, scale: 1.05 }}
-        animate={{ opacity: 1, scale: 1 }}
-        exit={{ opacity: 0, scale: 0.98 }}
-        transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-        className="w-full h-full"
-        allow="autoplay"
-        title={item.title}
-    />
+                                    <motion.iframe
+                                        key={item.id}
+                                        src={item.src}
+                                        initial={{ opacity: 0, scale: 1.05 }}
+                                        animate={{ opacity: 1, scale: 1 }}
+                                        exit={{ opacity: 0, scale: 0.98 }}
+                                        transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+                                        className="w-full h-full"
+                                        allow="autoplay"
+                                        title={item.title}
+                                    />
                                 ) : (
                                     <motion.img
                                         key={item.id}
@@ -710,13 +711,7 @@ const Gallery = () => {
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.6 }}
                     >
-                        <Link
-                            to="/"
-                            className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors mb-8"
-                        >
-                            <ArrowLeft className="w-4 h-4" />
-                            Back to Home
-                        </Link>
+
                     </motion.div>
 
                     <motion.h1

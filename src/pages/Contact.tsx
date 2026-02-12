@@ -206,13 +206,7 @@ export default function Contact() {
 
         <div ref={heroRef} className="container mx-auto px-6 lg:px-8 relative z-10 text-center">
           <div className="mb-8">
-            <a
-              href="/"
-              className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors duration-300 group"
-            >
-              <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform duration-300" />
-              Back to Home
-            </a>
+            
           </div>
 
           <h1 className="font-display text-5xl md:text-7xl font-bold mb-6">
