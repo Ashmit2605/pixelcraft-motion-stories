@@ -7,46 +7,80 @@ import { useState } from 'react';
 
 const teamMembers = [
   {
+    name: 'Dr. Faculty Member 1',
+    role: 'Faculty Advisor',
+    category: 'faculty',
+    bio: 'Experienced educator guiding students in animation and digital media with industry expertise.',
+    image: 'https://www.pccoer.com/computer/images/Teach/vaishali-latke.png',
+  },
+  {
+    name: 'Prof. Faculty Member 2',
+    role: 'Faculty Mentor',
+    category: 'faculty',
+    bio: 'Passionate about nurturing creative talent and fostering innovation in visual storytelling.',
+    image: 'https://www.pccoer.com/computer/images/Teach/mrs-madhavi-milind-kapre.jpg',
+  },
+  {
+    name: 'Dr. Faculty Member 3',
+    role: 'Faculty Coordinator',
+    category: 'faculty',
+    bio: 'Dedicated to bridging academic knowledge with practical animation industry applications.',
+    image: 'https://www.pccoer.com/computer/images/Teach/yogeshwari-vinod-mahajan.jpg',
+  },
+  {
     name: 'Ashmit Ostawal',
     role: 'President',
     category: 'core',
     bio: 'Motion designer with a passion for storytelling. Led 3 award-winning student films.',
-    image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop&crop=face',
+    image: 'https://drive.google.com/thumbnail?id=1QCQ9XEiGP8qDqq0PSCUhrHSMVJh8ybG7&sz=w1000',
   },
   {
     name: 'Imran Patel',
     role: 'Vice President',
     category: 'core',
     bio: '3D artist specializing in character animation. Pixar internship alumna.',
-    image: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&h=400&fit=crop&crop=face',
+    image: 'https://drive.google.com/thumbnail?id=1LcUjBWqxJUxQtdqyhxjzhRg3CkLmp-3w&sz=w1000',
   },
   {
     name: 'Aniruddha Nalawade',
     role: 'Web Head',
     category: 'Heads',
     bio: 'VFX enthusiast and visual storyteller. Brings big-screen magic to student projects.',
-    image: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&h=400&fit=crop&crop=face',
+    image: 'https://drive.google.com/thumbnail?id=1ipRuJUUkp-fU-SJrKUHkTXs1QRDbO5ew&sz=w1000',
   },
   {
     name: 'Sharvari Kinge',
     role: 'Events Head',
     category: 'Heads',
     bio: 'Organizer extraordinaire with a love for 2D animation. Runs our legendary workshops.',
-    image: "https://drive.google.com/file/d/1kZMG531c8BTDlQ8obWKUhDor1OZyu8yY/preview",
+    image: "https://drive.google.com/thumbnail?id=1kZMG531c8BTDlQ8obWKUhDor1OZyu8yY&sz=w1000",
+  }, {
+    name: 'Atharv Lokhande',
+    role: 'Media Head',
+    category: 'Heads',
+    bio: 'After Effects wizard. Turns boring presentations into visual experiences.',
+    image: 'https://drive.google.com/thumbnail?id=14kcFyXRxn28jMxGY1G7VrWi34prHRwHP&sz=w1000',
+  },
+  {
+    name: 'Siddhi Patil',
+    role: 'Technical Head',
+    category: 'Heads',
+    bio: 'Tech-savvy problem solver. Keeps our tools and workflows running smoothly.',
+    image: 'https://drive.google.com/thumbnail?id=1tYyD5kbpNVXXUujqrSacn_DqT1YI7HYR&sz=w1000',
   },
   {
     name: 'Soham Katore',
     role: 'Executive Head',
     category: 'Heads',
     bio: 'Pipeline wizard and render farm keeper. Makes sure nothing crashes (usually).',
-    image: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&crop=face',
+    image: 'https://drive.google.com/thumbnail?id=1-4P4Iux4jNVLn1COyUKVVUeXuk2-DARd&sz=w1000',
   },
   {
     name: 'Ajay Pawar',
     role: 'Marketing Head',
     category: 'Heads',
     bio: 'Pipeline wizard and render farm keeper. Makes sure nothing crashes (usually).',
-    image: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&crop=face',
+    image: 'https://drive.google.com/thumbnail?id=156pKooqdUUrs_OXPsoJAJMmvT31_UNyg&sz=w1000',
   },
 
   {
@@ -54,229 +88,227 @@ const teamMembers = [
     role: 'Design Head',
     category: 'Heads',
     bio: 'Building bridges between creatives. The glue that holds PixelCraft together.',
-    image: 'https://drive.google.com/uc?export=view&id=1tXi2bzNvhPg06ZGJaQvhKOPvN_nwFao4',
+    image: 'https://drive.google.com/thumbnail?id=1tXi2bzNvhPg06ZGJaQvhKOPvN_nwFao4&sz=w1000',
   },
   {
     name: 'Vishal Wankhade',
     role: 'Digital Head',
     category: 'Heads',
     bio: 'Traditional animator at heart. Frame by frame, story by story.',
-    image: 'https://drive.google.com/file/d/1DYSccaTLq8Hd5k8D5s1pyIdKm2qQrVep/view?usp=sharing',
+    image: 'https://drive.google.com/thumbnail?id=1DYSccaTLq8Hd5k8D5s1pyIdKm2qQrVep&sz=w1000',
   },
-  {
-    name: 'Atharv Lokhande',
-    role: 'Media Head',
-    category: 'Heads',
-    bio: 'After Effects wizard. Turns boring presentations into visual experiences.',
-    image: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=400&h=400&fit=crop&crop=face',
-  },
-  {
-    id: 1,
-    name: "Suraj Kadam",
-    role: "Editorial Head",
-    category: "Heads",
-    bio: "Storytelling expert. Crafts narratives that captivate and inspire audiences.",
-    image: "https://drive.google.com/file/d/1FqOW-Qtt8hI_a1Vxkxz0xi5T7M8dDQBL/preview"
-  },
-  {
-    name: 'Siddhi Patil',
-    role: 'Technical Head',
-    category: 'Heads',
-    bio: 'Tech-savvy problem solver. Keeps our tools and workflows running smoothly.',
-    image: 'https://drive.google.com/uc?export=view&id=1AbCdEfGhIjKlMn',
-  },
+
+  // {
+  //   id: 1,
+  //   name: "Suraj Kadam",
+  //   role: "Editorial Head",
+  //   category: "Heads",
+  //   bio: "Storytelling expert. Crafts narratives that captivate and inspire audiences.",
+  //   image: "https://drive.google.com/thumbnail?id=10Sihqa4i_nskP7awmScN1Uaq2jhcl7RZ&sz=w1000"
+  // },
+
   {
     name: 'Kushal Mahajan',
     role: 'Design Co-Head',
     category: 'Heads',
     bio: 'Tech-savvy problem solver. Keeps our tools and workflows running smoothly.',
-    image: 'https://drive.google.com/thumbnail?id=Qtt8hI_a1Vxkxz0xi5T7M8dDQBL&sz=w800',
+    image: 'https://drive.google.com/thumbnail?id=147ubdKp7vFfwkR5WBbonGAcHjI7y1yuB&sz=w1000',
+
   },
+  // {
+  //   name: 'Gauri Wankhede',
+  //   role: 'Executive Co-Head',
+  //   category: 'Heads',
+  //   bio: 'Tech-savvy problem solver. Keeps our tools and workflows running smoothly.',
+  //   image: 'https://drive.google.com/thumbnail?id=10Sihqa4i_nskP7awmScN1Uaq2jhcl7RZ&sz=w1000',
+  // },
+  // {
+  //   name: 'Soham Shejwal',
+  //   role: 'Member',
+  //   category: 'design',
+  //   bio: 'Storytelling expert. Crafts narratives that captivate and inspire audiences.',
+  //   image: 'https://drive.google.com/thumbnail?id=10Sihqa4i_nskP7awmScN1Uaq2jhcl7RZ&sz=w1000',
+  // },
+  //  {
+  //     name: 'Vrindda Gaikwad',
+  //     role: 'Member',
+  //     category: 'design',
+  //     bio: 'Storytelling expert. Crafts narratives that captivate and inspire audiences.',
+  //     image: 'https://drive.google.com/thumbnail?id=10Sihqa4i_nskP7awmScN1Uaq2jhcl7RZ&sz=w1000',
+  //   },  
   {
-    name: 'Gauri Wankhede',
-    role: 'Executive Co-Head',
-    category: 'Heads',
-    bio: 'Tech-savvy problem solver. Keeps our tools and workflows running smoothly.',
-    image: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=400&h=400&fit=crop&crop=face',
-  },
-  {
-    name: 'Soham Shejwal',
-    role: 'Member',
-    category: 'design',
-    bio: 'Storytelling expert. Crafts narratives that captivate and inspire audiences.',
-    image: 'https://images.unsplash.com/photo-1519345182560-3f2917c472ef?w=400&h=400&fit=crop&crop=face',
-  },
-  {
-    name: 'Vrindda Gaikwad',
-    role: 'Member',
-    category: 'design',
-    bio: 'Storytelling expert. Crafts narratives that captivate and inspire audiences.',
-    image: 'https://images.unsplash.com/photo-1519345182560-3f2917c472ef?w=400&h=400&fit=crop&crop=face',
-  }, {
     name: 'Dikeshwar Manghate',
     role: 'Member',
     category: 'design',
     bio: 'Storytelling expert. Crafts narratives that captivate and inspire audiences.',
-    image: 'https://drive.google.com/file/d/10Sihqa4i_nskP7awmScN1Uaq2jhcl7RZ/preview',
+    image: 'https://drive.google.com/thumbnail?id=10Sihqa4i_nskP7awmScN1Uaq2jhcl7RZ&sz=w1000',
   },
   {
     name: 'Soham Pachpute',
     role: 'Member',
     category: 'web',
     bio: 'Storytelling expert. Crafts narratives that captivate and inspire audiences.',
-    image: 'https://images.unsplash.com/photo-1519345182560-3f2917c472ef?w=400&h=400&fit=crop&crop=face',
+    image: 'https://drive.google.com/thumbnail?id=1tfS6ANa1zUAdhuXD15nqaQSmt0Hxpodk&sz=w800',
   },
-  {
-    name: 'Akash Gore',
-    role: 'Member',
-    category: 'web',
-    bio: 'Storytelling expert. Crafts narratives that captivate and inspire audiences.',
-    image: 'https://images.unsplash.com/photo-1519345182560-3f2917c472ef?w=400&h=400&fit=crop&crop=face',
-  },
-  {
-    name: 'Chaitnya Phuge',
-    role: 'Member',
-    category: 'web',
-    bio: 'Storytelling expert. Crafts narratives that captivate and inspire audiences.',
-    image: 'https://images.unsplash.com/photo-1519345182560-3f2917c472ef?w=400&h=400&fit=crop&crop=face',
-  },
-  {
-    name: 'Shravani Kaulapure',
-    role: 'Member',
-    category: 'event',
-    bio: 'Storytelling expert. Crafts narratives that captivate and inspire audiences.',
-    image: 'https://images.unsplash.com/photo-1519345182560-3f2917c472ef?w=400&h=400&fit=crop&crop=face',
-  },
-  {
-    name: 'Shravani Joshi',
-    role: 'Member',
-    category: 'event',
-    bio: 'Storytelling expert. Crafts narratives that captivate and inspire audiences.',
-    image: 'https://images.unsplash.com/photo-1519345182560-3f2917c472ef?w=400&h=400&fit=crop&crop=face',
-  },
-  {
-    name: 'Mohit Patil',
-    role: 'Member',
-    category: 'event',
-    bio: 'Storytelling expert. Crafts narratives that captivate and inspire audiences.',
-    image: 'https://images.unsplash.com/photo-1519345182560-3f2917c472ef?w=400&h=400&fit=crop&crop=face',
-  },
-  {
-    name: 'Abhyudya Waghmare',
-    role: 'Member',
-    category: 'executive',
-    bio: 'Storytelling expert. Crafts narratives that captivate and inspire audiences.',
-    image: 'https://images.unsplash.com/photo-1519345182560-3f2917c472ef?w=400&h=400&fit=crop&crop=face',
-  },
+  // {
+  //   name: 'Sushant Gore',
+  //   role: 'Member',
+  //   category: 'web',
+  //   bio: 'Storytelling expert. Crafts narratives that captivate and inspire audiences.',
+  //   image: 'https://drive.google.com/thumbnail?id=19P8oKZ4fQ5Oy-z7XO71s1lH2Qhpxlvvk&sz=w1000',
+  // },
+  // {
+  //   name: 'Chaitnya Phuge',
+  //   role: 'Member',
+  //   category: 'web',
+  //   bio: 'Storytelling expert. Crafts narratives that captivate and inspire audiences.',
+  //   image: 'https://drive.google.com/thumbnail?id=19P8oKZ4fQ5Oy-z7XO71s1lH2Qhpxlvvk&sz=w1000',
+  // },
+  // {
+  //   name: 'Shravani Kaulapure',
+  //   role: 'Member',
+  //   category: 'event',
+  //   bio: 'Storytelling expert. Crafts narratives that captivate and inspire audiences.',
+  //   image: 'https://drive.google.com/thumbnail?id=1VI3Tkez-X647YiwcM4gsKsrVE6BfaRVL&sz=w1000',
+  // },
+  // {
+  //   name: 'Shravani Joshi',
+  //   role: 'Member',
+  //   category: 'event',
+  //   bio: 'Storytelling expert. Crafts narratives that captivate and inspire audiences.',
+  //   image: 'https://drive.google.com/thumbnail?id=19P8oKZ4fQ5Oy-z7XO71s1lH2Qhpxlvvk&sz=w1000',
+  // },
+  // {
+  //   name: 'Mohit Patil',
+  //   role: 'Member',
+  //   category: 'event',
+  //   bio: 'Storytelling expert. Crafts narratives that captivate and inspire audiences.',
+  //   image: 'https://drive.google.com/thumbnail?id=19P8oKZ4fQ5Oy-z7XO71s1lH2Qhpxlvvk&sz=w1000',
+  // },
+  // {
+  //   name: 'Abhyudya Waghmare',
+  //   role: 'Member',
+  //   category: 'executive',
+  //   bio: 'Storytelling expert. Crafts narratives that captivate and inspire audiences.',
+  //   image: 'https://drive.google.com/thumbnail?id=19P8oKZ4fQ5Oy-z7XO71s1lH2Qhpxlvvk&sz=w1000',
+  // },
   {
     name: 'Rohit Chaudhari',
     role: 'Member',
     category: 'executive',
     bio: 'Storytelling expert. Crafts narratives that captivate and inspire audiences.',
-    image: 'https://images.unsplash.com/photo-1519345182560-3f2917c472ef?w=400&h=400&fit=crop&crop=face',
+    image: 'https://drive.google.com/thumbnail?id=1LFLHmXsK1oX6AE22efUB4lYemmxJC2WK&sz=w1000',
   },
-  {
-    name: 'Anushka Barde',
-    role: 'Member',
-    category: 'marketing',
-    bio: 'Storytelling expert. Crafts narratives that captivate and inspire audiences.',
-    image: 'https://images.unsplash.com/photo-1519345182560-3f2917c472ef?w=400&h=400&fit=crop&crop=face',
-  },
-  {
-    name: 'Hemant Singh Rajput',
-    role: 'Member',
-    category: 'marketing',
-    bio: 'Storytelling expert. Crafts narratives that captivate and inspire audiences.',
-    image: 'https://images.unsplash.com/photo-1519345182560-3f2917c472ef?w=400&h=400&fit=crop&crop=face',
-  },
-  {
-    name: 'Shruti Hingane',
-    role: 'Member',
-    category: 'marketing',
-    bio: 'Storytelling expert. Crafts narratives that captivate and inspire audiences.',
-    image: 'https://images.unsplash.com/photo-1519345182560-3f2917c472ef?w=400&h=400&fit=crop&crop=face',
-  },
+  // {
+  //   name: 'Anushka Barde',
+  //   role: 'Member',
+  //   category: 'marketing',
+  //   bio: 'Storytelling expert. Crafts narratives that captivate and inspire audiences.',
+  //   image: 'https://drive.google.com/thumbnail?id=19P8oKZ4fQ5Oy-z7XO71s1lH2Qhpxlvvk&sz=w1000',
+  // },
+  // {
+  //   name: 'Hemant Singh Rajput',
+  //   role: 'Member',
+  //   category: 'marketing',
+  //   bio: 'Storytelling expert. Crafts narratives that captivate and inspire audiences.',
+  //   image: 'https://drive.google.com/thumbnail?id=19P8oKZ4fQ5Oy-z7XO71s1lH2Qhpxlvvk&sz=w1000',
+  // },
+  // {
+  //   name: 'Shruti Hingane',
+  //   role: 'Member',
+  //   category: 'marketing',
+  //   bio: 'Storytelling expert. Crafts narratives that captivate and inspire audiences.',
+  //   image: 'https://drive.google.com/thumbnail?id=19P8oKZ4fQ5Oy-z7XO71s1lH2Qhpxlvvk&sz=w1000',
+  // },
   {
     name: 'Prithvi Bandgujar',
     role: 'Member',
     category: 'technical',
     bio: 'Storytelling expert. Crafts narratives that captivate and inspire audiences.',
-    image: 'https://images.unsplash.com/photo-1519345182560-3f2917c472ef?w=400&h=400&fit=crop&crop=face',
+    image: 'https://drive.google.com/thumbnail?id=1MczVVd3y1SLWCHpkIaDAi5rc8yuln6zl&sz=w1000',
   },
   {
     name: 'Unmesh Patil',
     role: 'Member',
     category: 'technical',
     bio: 'Storytelling expert. Crafts narratives that captivate and inspire audiences.',
-    image: 'https://images.unsplash.com/photo-1519345182560-3f2917c472ef?w=400&h=400&fit=crop&crop=face',
+    image: 'https://drive.google.com/thumbnail?id=17PBv-b43JL0m78-1dgW0iMiWrGIUNbrm&sz=w1000',
   }, {
     name: 'Raviraj Pawar',
     role: 'Member',
     category: 'technical',
     bio: 'Storytelling expert. Crafts narratives that captivate and inspire audiences.',
-    image: 'https://images.unsplash.com/photo-1519345182560-3f2917c472ef?w=400&h=400&fit=crop&crop=face',
+    image: 'https://drive.google.com/thumbnail?id=19P8oKZ4fQ5Oy-z7XO71s1lH2Qhpxlvvk&sz=w1000',
   },
-  {
-    name: 'Kripsy Yadav ',
-    role: 'Member',
-    category: 'digital',
-    bio: 'Storytelling expert. Crafts narratives that captivate and inspire audiences.',
-    image: 'https://images.unsplash.com/photo-1519345182560-3f2917c472ef?w=400&h=400&fit=crop&crop=face',
-  },
-  {
-    name: 'Yash Bhandari',
-    role: 'Member',
-    category: 'digital',
-    bio: 'Storytelling expert. Crafts narratives that captivate and inspire audiences.',
-    image: 'https://images.unsplash.com/photo-1519345182560-3f2917c472ef?w=400&h=400&fit=crop&crop=face',
-  },
+  // {
+  //   name: 'Kripsy Yadav ',
+  //   role: 'Member',
+  //   category: 'digital',
+  //   bio: 'Storytelling expert. Crafts narratives that captivate and inspire audiences.',
+  //   image: 'https://drive.google.com/thumbnail?id=19P8oKZ4fQ5Oy-z7XO71s1lH2Qhpxlvvk&sz=w1000',
+  // },
+  // {
+  //   name: 'Yash Bhandari',
+  //   role: 'Member',
+  //   category: 'digital',
+  //   bio: 'Storytelling expert. Crafts narratives that captivate and inspire audiences.',
+  //   image: 'https://drive.google.com/thumbnail?id=19P8oKZ4fQ5Oy-z7XO71s1lH2Qhpxlvvk&sz=w1000',
+
+  // },
   {
     name: 'Aadi Kulkarni',
     role: 'Member',
     category: 'digital',
     bio: 'Storytelling expert. Crafts narratives that captivate and inspire audiences.',
-    image: 'https://images.unsplash.com/photo-1519345182560-3f2917c472ef?w=400&h=400&fit=crop&crop=face',
+    image: 'https://drive.google.com/thumbnail?id=1SF7Rj3Dmzl-SfYpr8do-ggW9_gym4tel&sz=w1000',
   },
-  {
-    name: 'Amar Kolawale',
-    role: 'Member',
-    category: 'editorial',
-    bio: 'Storytelling expert. Crafts narratives that captivate and inspire audiences.',
-    image: 'https://images.unsplash.com/photo-1519345182560-3f2917c472ef?w=400&h=400&fit=crop&crop=face',
-  },
-  {
-    name: 'Om Khatri',
-    role: 'Member',
-    category: 'editorial',
-    bio: 'Storytelling expert. Crafts narratives that captivate and inspire audiences.',
-    image: 'https://images.unsplash.com/photo-1519345182560-3f2917c472ef?w=400&h=400&fit=crop&crop=face',
-  },
-  {
-    name: 'Swaraj Idhole',
-    role: 'Member',
-    category: 'editorial',
-    bio: 'Storytelling expert. Crafts narratives that captivate and inspire audiences.',
-    image: 'https://images.unsplash.com/photo-1519345182560-3f2917c472ef?w=400&h=400&fit=crop&crop=face',
-  },
-  {
-    name: 'Athrav Patil',
-    role: 'Member',
-    category: 'media',
-    bio: 'Storytelling expert. Crafts narratives that captivate and inspire audiences.',
-    image: 'https://images.unsplash.com/photo-1519345182560-3f2917c472ef?w=400&h=400&fit=crop&crop=face',
-  },
+  // {
+  //   name: 'Sakshi Kulkarni',
+  //   role: 'Member',
+  //   category: 'digital',
+  //   bio: 'Storytelling expert. Crafts narratives that captivate and inspire audiences.',
+  //   image: 'https://drive.google.com/thumbnail?id=1SF7Rj3Dmzl-SfYpr8do-ggW9_gym4tel&sz=w1000',
+  // },
+  // {
+  //   name: 'Amar Kolawale',
+  //   role: 'Member',
+  //   category: 'editorial',
+  //   bio: 'Storytelling expert. Crafts narratives that captivate and inspire audiences.',
+  //   image: 'https://drive.google.com/thumbnail?id=19P8oKZ4fQ5Oy-z7XO71s1lH2Qhpxlvvk&sz=w1000',
+  // },
+  // {
+  //   name: 'Om Khatri',
+  //   role: 'Member',
+  //   category: 'editorial',
+  //   bio: 'Storytelling expert. Crafts narratives that captivate and inspire audiences.',
+  //   image: 'https://drive.google.com/thumbnail?id=19P8oKZ4fQ5Oy-z7XO71s1lH2Qhpxlvvk&sz=w1000',
+  // },
+  // {
+  //   name: 'Swaraj Idhole',
+  //   role: 'Member',
+  //   category: 'editorial',
+  //   bio: 'Storytelling expert. Crafts narratives that captivate and inspire audiences.',
+  //   image: 'https://drive.google.com/thumbnail?id=19P8oKZ4fQ5Oy-z7XO71s1lH2Qhpxlvvk&sz=w1000',
+  // },
+  // {
+  //   name: 'Athrav Patil',
+  //   role: 'Member',
+  //   category: 'media',
+  //   bio: 'Storytelling expert. Crafts narratives that captivate and inspire audiences.',
+  //   image: 'https://drive.google.com/thumbnail?id=19P8oKZ4fQ5Oy-z7XO71s1lH2Qhpxlvvk&sz=w1000',
+  // },
   {
     name: 'Apurv Patil',
     role: 'Member',
     category: 'media',
     bio: 'Storytelling expert. Crafts narratives that captivate and inspire audiences.',
-    image: 'https://images.unsplash.com/photo-1519345182560-3f2917c472ef?w=400&h=400&fit=crop&crop=face',
+    image: 'https://drive.google.com/thumbnail?id=12Wu_sY87_WKz-0T_X9JL5Gae9MkT9fjd&sz=w1000',
   },
-
-
 ];
 
 const categories = [
+  { id: 'all', label: 'All' },
+  { id: 'faculty', label: 'Faculty' },
   { id: 'core', label: 'Core Team' },
   { id: 'Heads', label: 'Domain Heads' },
   { id: 'design', label: 'Design' },
@@ -418,20 +450,13 @@ const Team = () => {
                     style={{ backfaceVisibility: 'hidden' }}
                   >
                     <div className="relative h-full">
-                      {member.image.includes("drive.google.com") ? (
-                        <iframe
-                          src={member.image}
-                          title={member.name}
-                          className="w-full h-full"
-                          allow="autoplay"
-                        />
-                      ) : (
-                        <img
-                          src={member.image}
-                          alt={member.name}
-                          className="w-full h-full object-cover"
-                        />
-                      )}
+
+                      <img
+                        src={member.image}
+                        alt={member.name}
+                        className="w-full h-full object-cover"
+                      />
+
                       <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent p-6">
                         <h3 className="font-display text-2xl font-bold text-white mb-1">
                           {member.name}

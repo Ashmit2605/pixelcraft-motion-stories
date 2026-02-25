@@ -1,8 +1,8 @@
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import Navigation from '@/components/Navigation';
 import { Footer } from '@/components/Footer';
-import { ArrowLeft, Calendar, MapPin, Clock, ArrowRight } from 'lucide-react';
+import { ArrowLeft, Calendar, MapPin, Clock, ArrowRight, FileText, Download } from 'lucide-react';
 import { useEffect, useState, useRef, ReactNode } from 'react';
 
 const upcomingEvents = [
@@ -46,263 +46,221 @@ const pastEvents = [
     id: 4,
     title: 'Inauguration Day',
     date: 'September 3, 2025',
-    image: './Inauguration.jpg',
+    image: '/Inauguration.jpg',
     attendees: 38,
+    reportPdf: '/reports/Inauguration.pdf',
+    reportLabel: 'Inauguration Report',
   },
   {
     id: 5,
     title: 'The Art of Motion Design',
     date: 'February 5-6, 2026',
-    image: './Workshop.jpg',
+    image: '/Workshop.jpg',
     attendees: 35,
+    reportPdf: '/reports/Workshop_Report.pdf', // Fixed: removed space in filename
+    reportLabel: 'Workshop Report',
   }
 ];
 
+// ─── Types ────────────────────────────────────────────────────────────────────
 
-// Cool Mode Component
 interface BaseParticle {
-  element: HTMLElement | SVGSVGElement
-  left: number
-  size: number
-  top: number
+  element: HTMLElement | SVGSVGElement;
+  left: number;
+  size: number;
+  top: number;
 }
 
 interface CoolParticle extends BaseParticle {
-  direction: number
-  speedHorz: number
-  speedUp: number
-  spinSpeed: number
-  spinVal: number
+  direction: number;
+  speedHorz: number;
+  speedUp: number;
+  spinSpeed: number;
+  spinVal: number;
 }
 
 interface CoolParticleOptions {
-  particle?: string
-  size?: number
-  particleCount?: number
-  speedHorz?: number
-  speedUp?: number
+  particle?: string;
+  size?: number;
+  particleCount?: number;
+  speedHorz?: number;
+  speedUp?: number;
 }
+
+interface CoolModeProps {
+  children: ReactNode;
+  options?: CoolParticleOptions;
+}
+
+// ─── Cool Mode ────────────────────────────────────────────────────────────────
 
 const getContainer = () => {
-  const id = "_coolMode_effect"
-  const existingContainer = document.getElementById(id)
+  const id = '_coolMode_effect';
+  const existingContainer = document.getElementById(id);
+  if (existingContainer) return existingContainer;
 
-  if (existingContainer) {
-    return existingContainer
-  }
-
-  const container = document.createElement("div")
-  container.setAttribute("id", id)
+  const container = document.createElement('div');
+  container.setAttribute('id', id);
   container.setAttribute(
-    "style",
-    "overflow:hidden; position:fixed; height:100%; top:0; left:0; right:0; bottom:0; pointer-events:none; z-index:2147483647"
-  )
+    'style',
+    'overflow:hidden; position:fixed; height:100%; top:0; left:0; right:0; bottom:0; pointer-events:none; z-index:2147483647'
+  );
+  document.body.appendChild(container);
+  return container;
+};
 
-  document.body.appendChild(container)
-
-  return container
-}
-
-let instanceCounter = 0
+let instanceCounter = 0;
 
 const applyParticleEffect = (
   element: HTMLElement,
   options?: CoolParticleOptions
 ): (() => void) => {
-  instanceCounter++
+  instanceCounter++;
 
-  const defaultParticle = "circle"
-  const particleType = options?.particle || defaultParticle
-  const sizes = [15, 20, 25, 35, 45]
-  const limit = 45
+  const defaultParticle = 'circle';
+  const particleType = options?.particle || defaultParticle;
+  const sizes = [15, 20, 25, 35, 45];
+  const limit = 45;
 
-  let particles: CoolParticle[] = []
-  let autoAddParticle = false
-  let mouseX = 0
-  let mouseY = 0
+  let particles: CoolParticle[] = [];
+  let autoAddParticle = false;
+  let mouseX = 0;
+  let mouseY = 0;
 
-  const container = getContainer()
+  const container = getContainer();
 
   function generateParticle() {
-    const size =
-      options?.size || sizes[Math.floor(Math.random() * sizes.length)]
-    const speedHorz = options?.speedHorz || Math.random() * 10
-    const speedUp = options?.speedUp || Math.random() * 25
-    const spinVal = Math.random() * 360
-    const spinSpeed = Math.random() * 35 * (Math.random() <= 0.5 ? -1 : 1)
-    const top = mouseY - size / 2
-    const left = mouseX - size / 2
-    const direction = Math.random() <= 0.5 ? -1 : 1
+    const size = options?.size || sizes[Math.floor(Math.random() * sizes.length)];
+    const speedHorz = options?.speedHorz || Math.random() * 10;
+    const speedUp = options?.speedUp || Math.random() * 25;
+    const spinVal = Math.random() * 360;
+    const spinSpeed = Math.random() * 35 * (Math.random() <= 0.5 ? -1 : 1);
+    const top = mouseY - size / 2;
+    const left = mouseX - size / 2;
+    const direction = Math.random() <= 0.5 ? -1 : 1;
 
-    const particle = document.createElement("div")
+    const particle = document.createElement('div');
 
-    if (particleType === "circle") {
-      const svgNS = "http://www.w3.org/2000/svg"
-      const circleSVG = document.createElementNS(svgNS, "svg")
-      const circle = document.createElementNS(svgNS, "circle")
-      circle.setAttributeNS(null, "cx", (size / 2).toString())
-      circle.setAttributeNS(null, "cy", (size / 2).toString())
-      circle.setAttributeNS(null, "r", (size / 2).toString())
-      circle.setAttributeNS(
-        null,
-        "fill",
-        `hsl(${Math.random() * 360}, 70%, 50%)`
-      )
-
-      circleSVG.appendChild(circle)
-      circleSVG.setAttribute("width", size.toString())
-      circleSVG.setAttribute("height", size.toString())
-
-      particle.appendChild(circleSVG)
-    } else if (
-      particleType.startsWith("http") ||
-      particleType.startsWith("/")
-    ) {
-      particle.innerHTML = `<img src="${particleType}" width="${size}" height="${size}" style="border-radius: 50%">`
+    if (particleType === 'circle') {
+      const svgNS = 'http://www.w3.org/2000/svg';
+      const circleSVG = document.createElementNS(svgNS, 'svg');
+      const circle = document.createElementNS(svgNS, 'circle');
+      circle.setAttributeNS(null, 'cx', (size / 2).toString());
+      circle.setAttributeNS(null, 'cy', (size / 2).toString());
+      circle.setAttributeNS(null, 'r', (size / 2).toString());
+      circle.setAttributeNS(null, 'fill', `hsl(${Math.random() * 360}, 70%, 50%)`);
+      circleSVG.appendChild(circle);
+      circleSVG.setAttribute('width', size.toString());
+      circleSVG.setAttribute('height', size.toString());
+      particle.appendChild(circleSVG);
+    } else if (particleType.startsWith('http') || particleType.startsWith('/')) {
+      particle.innerHTML = `<img src="${particleType}" width="${size}" height="${size}" style="border-radius: 50%">`;
     } else {
-      const fontSizeMultiplier = 3
-      const emojiSize = size * fontSizeMultiplier
-      particle.innerHTML = `<div style="font-size: ${emojiSize}px; line-height: 1; text-align: center; width: ${size}px; height: ${size}px; display: flex; align-items: center; justify-content: center; transform: scale(${fontSizeMultiplier}); transform-origin: center;">${particleType}</div>`
+      const fontSizeMultiplier = 3;
+      const emojiSize = size * fontSizeMultiplier;
+      particle.innerHTML = `<div style="font-size: ${emojiSize}px; line-height: 1; text-align: center; width: ${size}px; height: ${size}px; display: flex; align-items: center; justify-content: center; transform: scale(${fontSizeMultiplier}); transform-origin: center;">${particleType}</div>`;
     }
 
-    particle.style.position = "absolute"
-    particle.style.transform = `translate3d(${left}px, ${top}px, 0px) rotate(${spinVal}deg)`
+    particle.style.position = 'absolute';
+    particle.style.transform = `translate3d(${left}px, ${top}px, 0px) rotate(${spinVal}deg)`;
+    container.appendChild(particle);
 
-    container.appendChild(particle)
-
-    particles.push({
-      direction,
-      element: particle,
-      left,
-      size,
-      speedHorz,
-      speedUp,
-      spinSpeed,
-      spinVal,
-      top,
-    })
+    particles.push({ direction, element: particle, left, size, speedHorz, speedUp, spinSpeed, spinVal, top });
   }
 
   function refreshParticles() {
     particles.forEach((p) => {
-      p.left = p.left - p.speedHorz * p.direction
-      p.top = p.top - p.speedUp
-      p.speedUp = Math.min(p.size, p.speedUp - 1)
-      p.spinVal = p.spinVal + p.spinSpeed
+      p.left = p.left - p.speedHorz * p.direction;
+      p.top = p.top - p.speedUp;
+      p.speedUp = Math.min(p.size, p.speedUp - 1);
+      p.spinVal = p.spinVal + p.spinSpeed;
 
-      if (
-        p.top >=
-        Math.max(window.innerHeight, document.body.clientHeight) + p.size
-      ) {
-        particles = particles.filter((o) => o !== p)
-        p.element.remove()
+      if (p.top >= Math.max(window.innerHeight, document.body.clientHeight) + p.size) {
+        particles = particles.filter((o) => o !== p);
+        p.element.remove();
       }
 
       p.element.setAttribute(
-        "style",
-        [
-          "position:absolute",
-          "will-change:transform",
-          `top:${p.top}px`,
-          `left:${p.left}px`,
-          `transform:rotate(${p.spinVal}deg)`,
-        ].join(";")
-      )
-    })
+        'style',
+        ['position:absolute', 'will-change:transform', `top:${p.top}px`, `left:${p.left}px`, `transform:rotate(${p.spinVal}deg)`].join(';')
+      );
+    });
   }
 
-  let animationFrame: number | undefined
-
-  let lastParticleTimestamp = 0
-  const particleGenerationDelay = 30
+  let animationFrame: number | undefined;
+  let lastParticleTimestamp = 0;
+  const particleGenerationDelay = 30;
 
   function loop() {
-    const currentTime = performance.now()
-    if (
-      autoAddParticle &&
-      particles.length < limit &&
-      currentTime - lastParticleTimestamp > particleGenerationDelay
-    ) {
-      generateParticle()
-      lastParticleTimestamp = currentTime
+    const currentTime = performance.now();
+    if (autoAddParticle && particles.length < limit && currentTime - lastParticleTimestamp > particleGenerationDelay) {
+      generateParticle();
+      lastParticleTimestamp = currentTime;
     }
-
-    refreshParticles()
-    animationFrame = requestAnimationFrame(loop)
+    refreshParticles();
+    animationFrame = requestAnimationFrame(loop);
   }
 
-  loop()
+  loop();
 
-  const isTouchInteraction = "ontouchstart" in window
-
-  const tap = isTouchInteraction ? "touchstart" : "mousedown"
-  const tapEnd = isTouchInteraction ? "touchend" : "mouseup"
-  const move = isTouchInteraction ? "touchmove" : "mousemove"
+  const isTouchInteraction = 'ontouchstart' in window;
+  const tap = isTouchInteraction ? 'touchstart' : 'mousedown';
+  const tapEnd = isTouchInteraction ? 'touchend' : 'mouseup';
+  const move = isTouchInteraction ? 'touchmove' : 'mousemove';
 
   const updateMousePosition = (e: MouseEvent | TouchEvent) => {
-    if ("touches" in e) {
-      mouseX = e.touches?.[0].clientX
-      mouseY = e.touches?.[0].clientY
+    if ('touches' in e) {
+      mouseX = e.touches?.[0].clientX;
+      mouseY = e.touches?.[0].clientY;
     } else {
-      mouseX = e.clientX
-      mouseY = e.clientY
+      mouseX = e.clientX;
+      mouseY = e.clientY;
     }
-  }
+  };
+
   const pomPomSound = new Audio('https://assets.mixkit.co/active_storage/sfx/2018/2018-preview.mp3');
-  // Or use your own sound file URL
+
   const tapHandler = (e: MouseEvent | TouchEvent) => {
-    updateMousePosition(e)
-    autoAddParticle = true
+    updateMousePosition(e);
+    autoAddParticle = true;
     pomPomSound.currentTime = 0;
     pomPomSound.play().catch(() => { });
-  }
+  };
 
-  const disableAutoAddParticle = () => {
-    autoAddParticle = false
-  }
+  const disableAutoAddParticle = () => { autoAddParticle = false; };
 
-  element.addEventListener(move, updateMousePosition, { passive: true })
-  element.addEventListener(tap, tapHandler, { passive: true })
-  element.addEventListener(tapEnd, disableAutoAddParticle, { passive: true })
-  element.addEventListener("mouseleave", disableAutoAddParticle, {
-    passive: true,
-  })
+  element.addEventListener(move, updateMousePosition, { passive: true });
+  element.addEventListener(tap, tapHandler, { passive: true });
+  element.addEventListener(tapEnd, disableAutoAddParticle, { passive: true });
+  element.addEventListener('mouseleave', disableAutoAddParticle, { passive: true });
 
   return () => {
-    element.removeEventListener(move, updateMousePosition)
-    element.removeEventListener(tap, tapHandler)
-    element.removeEventListener(tapEnd, disableAutoAddParticle)
-    element.removeEventListener("mouseleave", disableAutoAddParticle)
+    element.removeEventListener(move, updateMousePosition);
+    element.removeEventListener(tap, tapHandler);
+    element.removeEventListener(tapEnd, disableAutoAddParticle);
+    element.removeEventListener('mouseleave', disableAutoAddParticle);
 
     const interval = setInterval(() => {
       if (animationFrame && particles.length === 0) {
-        cancelAnimationFrame(animationFrame)
-        clearInterval(interval)
-
-        if (--instanceCounter === 0) {
-          container.remove()
-        }
+        cancelAnimationFrame(animationFrame);
+        clearInterval(interval);
+        if (--instanceCounter === 0) container.remove();
       }
-    }, 500)
-  }
-}
-
-interface CoolModeProps {
-  children: ReactNode
-  options?: CoolParticleOptions
-}
+    }, 500);
+  };
+};
 
 const CoolMode: React.FC<CoolModeProps> = ({ children, options }) => {
-  const ref = useRef<HTMLSpanElement>(null)
+  const ref = useRef<HTMLSpanElement>(null);
 
   useEffect(() => {
-    if (ref.current) {
-      return applyParticleEffect(ref.current, options)
-    }
-  }, [options])
+    if (ref.current) return applyParticleEffect(ref.current, options);
+  }, [options]);
 
-  return <span ref={ref}>{children}</span>
-}
+  return <span ref={ref}>{children}</span>;
+};
+
+// ─── Live Clock ───────────────────────────────────────────────────────────────
 
 const LiveClock = () => {
   const [time, setTime] = useState({ hours: 0, minutes: 0, seconds: 0 });
@@ -310,19 +268,12 @@ const LiveClock = () => {
 
   useEffect(() => {
     setMounted(true);
-
     const updateTime = () => {
       const now = new Date();
-      setTime({
-        hours: now.getHours(),
-        minutes: now.getMinutes(),
-        seconds: now.getSeconds(),
-      });
+      setTime({ hours: now.getHours(), minutes: now.getMinutes(), seconds: now.getSeconds() });
     };
-
     updateTime();
     const timer = setInterval(updateTime, 1000);
-
     return () => clearInterval(timer);
   }, []);
 
@@ -354,6 +305,83 @@ const LiveClock = () => {
   );
 };
 
+
+
+// ─── Past Event Card ──────────────────────────────────────────────────────────
+
+interface PastEvent {
+  id: number;
+  title: string;
+  date: string;
+  image: string;
+  attendees: number;
+  reportPdf?: string;
+  reportLabel?: string;
+}
+
+interface PastEventCardProps {
+  event: PastEvent;
+  index: number;
+}
+
+const PastEventCard: React.FC<PastEventCardProps> = ({ event, index }) => {
+  const handleDownload = (pdfUrl: string, title: string) => {
+    const link = document.createElement('a');
+    link.href = pdfUrl;
+    link.download = title.replace(/\s+/g, '_') + '.pdf';
+    link.target = '_blank';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  return (
+    <motion.div
+      key={event.id}
+      initial={{ opacity: 0, scale: 0.9 }}
+      whileInView={{ opacity: 1, scale: 1 }}
+      viewport={{ once: true, margin: '-30px' }}
+      transition={{ duration: 0.4, delay: index * 0.08 }}
+      whileHover={{ scale: 1.03 }}
+      className="group cursor-pointer"
+    >
+      <div className="relative aspect-[4/3] rounded-xl overflow-hidden">
+        <img
+          src={event.image}
+          alt={event.title}
+          className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500"
+        />
+
+        {/* Hover overlay */}
+        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/70 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-4">
+          <h3 className="font-display text-lg font-bold text-foreground">{event.title}</h3>
+
+          <div className="flex items-center justify-between mt-2">
+            <span className="text-sm text-muted-foreground">{event.date}</span>
+            <span className="text-xs text-primary font-medium">{event.attendees} attended</span>
+          </div>
+
+          {/* PDF Report button */}
+          {event.reportPdf && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                handleDownload(event.reportPdf!, event.reportLabel || event.title);
+              }}
+              className="mt-3 w-full inline-flex items-center justify-center gap-2 px-3 py-2 rounded-lg bg-primary/20 border border-primary/40 text-primary text-xs font-semibold hover:bg-primary/30 transition-colors"
+            >
+              <Download className="w-3.5 h-3.5" />
+              Download Report
+            </button>
+          )}
+        </div>
+      </div>
+    </motion.div>
+  );
+};
+
+// ─── Main Events Page ─────────────────────────────────────────────────────────
+
 const Events = () => {
   const featuredEvent = upcomingEvents.find(e => e.featured);
 
@@ -361,9 +389,8 @@ const Events = () => {
     <div className="min-h-screen bg-background overflow-hidden">
       <Navigation />
 
-      {/* Hero Section with Featured Event */}
+      {/* ── Hero Section with Featured Event ── */}
       <section className="relative min-h-[90vh] flex items-center overflow-hidden pt-24">
-        {/* Background image with overlay */}
         {featuredEvent && (
           <>
             <div className="absolute inset-0">
@@ -376,14 +403,10 @@ const Events = () => {
               <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-background/50" />
             </div>
 
-            {/* Animated glow effect */}
             <motion.div
               className="absolute top-1/2 right-1/4 w-[600px] h-[600px] rounded-full"
               style={{ background: 'radial-gradient(circle, hsl(25 100% 55% / 0.15) 0%, transparent 70%)' }}
-              animate={{
-                scale: [1, 1.2, 1],
-                opacity: [0.3, 0.5, 0.3],
-              }}
+              animate={{ scale: [1, 1.2, 1], opacity: [0.3, 0.5, 0.3] }}
               transition={{ duration: 4, repeat: Infinity }}
             />
           </>
@@ -395,9 +418,7 @@ const Events = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
             className="mb-8"
-          >
-
-          </motion.div>
+          />
 
           {featuredEvent && (
             <div className="grid lg:grid-cols-2 gap-12 items-center">
@@ -436,7 +457,7 @@ const Events = () => {
                   </div>
 
                   <div className="flex">
-                    <CoolMode options={{ particle: "✨", particleCount: 40, speedHorz: 8, speedUp: 20 }}>
+                    <CoolMode options={{ particle: '✨', particleCount: 40, speedHorz: 8, speedUp: 20 }}>
                       <button className="inline-flex items-center justify-center gap-2 rounded-xl border-2 border-primary/50 bg-background px-8 py-4 text-lg font-semibold text-foreground transition-all hover:border-primary hover:bg-primary/5">
                         Are you excited? 🎉
                       </button>
@@ -459,7 +480,7 @@ const Events = () => {
         </div>
       </section>
 
-      {/* Past Events Gallery */}
+      {/* ── Past Events Gallery ── */}
       <section className="py-32 relative bg-muted/20">
         <div className="container mx-auto px-6 lg:px-8">
           <motion.div
@@ -469,7 +490,7 @@ const Events = () => {
             transition={{ duration: 0.6 }}
             className="mb-12"
           >
-            <h2 className="font-display text-3xl md:text-4xl font-bold text-muted-foreground">
+            <h2 className="font-display text-3xl md:text-4xl font-bold text-foreground">
               Past Events
             </h2>
             <p className="text-muted-foreground mt-2">Moments that shaped our community</p>
@@ -477,33 +498,11 @@ const Events = () => {
 
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
             {pastEvents.map((event, index) => (
-              <motion.div
+              <PastEventCard
                 key={event.id}
-                initial={{ opacity: 0, scale: 0.9 }}
-                whileInView={{ opacity: 1, scale: 1 }}
-                viewport={{ once: true, margin: "-30px" }}
-                transition={{ duration: 0.4, delay: index * 0.08 }}
-                whileHover={{ scale: 1.03 }}
-                className="group cursor-pointer"
-              >
-                <div className="relative aspect-[4/3] rounded-xl overflow-hidden">
-                  <img
-                    src={event.image}
-                    alt={event.title}
-                    className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500"
-                  />
-                  {/* Hover overlay */}
-                  <motion.div
-                    className="absolute inset-0 bg-gradient-to-t from-background via-background/70 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-4"
-                  >
-                    <h3 className="font-display text-lg font-bold text-foreground">{event.title}</h3>
-                    <div className="flex items-center justify-between mt-2">
-                      <span className="text-sm text-muted-foreground">{event.date}</span>
-                      <span className="text-xs text-primary font-medium">{event.attendees} attended</span>
-                    </div>
-                  </motion.div>
-                </div>
-              </motion.div>
+                event={event}
+                index={index}
+              />
             ))}
           </div>
         </div>
